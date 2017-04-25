@@ -1,11 +1,13 @@
 package com.lanzdev.model.entity;
 
-public class Chat {
+import com.lanzdev.model.Identified;
+
+public class Chat implements Identified<Long> {
 
     private Long id;
     private String firstName;
     private String lastName;
-    private Boolean isSuspended;
+    private Boolean suspended;
 
     public Chat( ) {
     }
@@ -34,11 +36,11 @@ public class Chat {
         this.lastName = lastName;
     }
 
-    public Boolean getSuspended( ) {
-        return isSuspended;
+    public Boolean isSuspended( ) {
+        return suspended;
     }
 
     public void setSuspended(Boolean suspended) {
-        isSuspended = suspended;
+        this.suspended = suspended;
     }
 }

@@ -16,10 +16,12 @@ import java.util.List;
 public class MemologyBot extends TelegramLongPollingCommandBot {
 
     public MemologyBot( ) {
+
         register(new AddPrePickedCommand());
         register(new AdminCommand());
         register(new DeletePrePickedCommand());
-        register(new HelpCommand());
+        HelpCommand helpCommand = new HelpCommand(this);
+        register(helpCommand);
         register(new ListCommand());
         register(new MyListCommand());
         register(new PauseCommand());
@@ -27,6 +29,39 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
         register(new ResumeCommand());
         register(new SubscribeCommand());
         register(new UnsubscribeCommand());
+
+        registerDefaultAction(((absSender, message) -> {
+            SendMessage commandUnknownMessage = new SendMessage();
+            commandUnknownMessage.setChatId(message.getChatId());
+            commandUnknownMessage.setText("The command '" + message.getText()
+                    + "' is unknown by this bot. Here comes some help");
+            try {
+                absSender.sendMessage(commandUnknownMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            helpCommand.execute(absSender, message.getFrom(), message.getChat(), new String[] {});
+        }));
+    }
+
+    @Override
+    public void processNonCommandUpdate(Update update) {
+
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+
+            if (message.hasText()) {
+                SendMessage echoMessage = new SendMessage();
+                echoMessage.setChatId(message.getChatId());
+                echoMessage.setText("Hey here's your message:\n" + message.getText());
+
+                try {
+                    sendMessage(echoMessage);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -37,11 +72,6 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
     @Override
     public String getBotToken( ) {
         return BotConfig.MEMOLOG_TOKEN;
-    }
-
-    @Override
-    public void processNonCommandUpdate(Update update) {
-
     }
 
     /*

@@ -1,6 +1,8 @@
 package com.lanzdev.model.entity;
 
-public class Admin {
+import com.lanzdev.model.Identified;
+
+public class Admin implements Identified<Integer> {
 
     private Integer id;
     private String login;

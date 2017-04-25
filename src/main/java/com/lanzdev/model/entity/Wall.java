@@ -1,6 +1,8 @@
 package com.lanzdev.model.entity;
 
-public class Wall {
+import com.lanzdev.model.Identified;
+
+public class Wall implements Identified<Integer> {
 
     private Integer id;
     private String wallDomain;

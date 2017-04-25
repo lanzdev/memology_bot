@@ -1,9 +1,11 @@
 package com.lanzdev.model.entity;
 
-public class Subscription {
+import com.lanzdev.model.Identified;
+
+public class Subscription implements Identified<Integer> {
 
     private Integer id;
-    private Integer chatId;
+    private Long chatId;
     private String wallDomain;
 
     public Subscription( ) {
@@ -17,11 +19,11 @@ public class Subscription {
         this.id = id;
     }
 
-    public Integer getChatId( ) {
+    public Long getChatId( ) {
         return chatId;
     }
 
-    public void setChatId(Integer chatId) {
+    public void setChatId(Long chatId) {
         this.chatId = chatId;
     }
 
