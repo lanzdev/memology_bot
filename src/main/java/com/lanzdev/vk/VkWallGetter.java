@@ -11,16 +11,15 @@ import java.util.Scanner;
 
 public class VkWallGetter {
 
-
     public List<Item> getItems(Long owner_id, Integer count, Integer offset) {
 
-        String url = getUrl(owner_id) + "&count=" + count + "&offset" + offset;
+        String url = getUrl(owner_id) + "&count=" + count + "&offset=" + offset;
         return getItems(url);
     }
 
     public List<Item> getItems(String domain, Integer count, Integer offset) {
 
-        String url = getUrl(domain) + "&count=" + count + "&offset" + offset;
+        String url = getUrl(domain) + "&count=" + count + "&offset=" + offset;
         return getItems(url);
     }
 
@@ -52,7 +51,7 @@ public class VkWallGetter {
     private String getResponse(String _url) throws IOException {
 
         URL url = new URL(_url);
-        String response = null;
+        String response;
 
         try (Scanner scanner = new Scanner(url.openStream())) {
             StringBuilder sb = new StringBuilder();
@@ -72,7 +71,6 @@ public class VkWallGetter {
 
         JSONObject obj = new JSONObject(source);
         JSONArray res = obj.getJSONArray("response");
-        System.out.println(res.length());
         for (Object currentObj : res) {
 
             JSONObject currentItem;
