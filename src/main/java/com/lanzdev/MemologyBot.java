@@ -1,8 +1,10 @@
 package com.lanzdev;
 
-import com.lanzdev.commands.*;
-import com.lanzdev.vk.Item;
-import com.lanzdev.vk.VkWallGetter;
+import com.lanzdev.commands.CommandContainer;
+import com.lanzdev.commands.Commands;
+import com.lanzdev.commands.entity.*;
+import com.lanzdev.vk.wall.WallItem;
+import com.lanzdev.vk.wall.VkWallGetter;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Chat;
@@ -11,24 +13,29 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MemologyBot extends TelegramLongPollingCommandBot {
 
+    public static final Map<String, CommandContainer> COMMANDS = new HashMap<>();
+
     public MemologyBot( ) {
 
-        register(new AddPrePickedCommand());
-        register(new AdminCommand());
-        register(new DeletePrePickedCommand());
-        HelpCommand helpCommand = new HelpCommand(this);
-        register(helpCommand);
-        register(new ListCommand());
-        register(new MyListCommand());
-        register(new PauseCommand());
-        register(new PickCommand());
-        register(new ResumeCommand());
-        register(new SubscribeCommand());
-        register(new UnsubscribeCommand());
+        COMMANDS.put(Commands.ADD_PRE_PICKED, new CommandContainer(new AddPrePickedCommand(), true));
+        COMMANDS.put(Commands.ADMIN, new CommandContainer(new AdminCommand(), true));
+        COMMANDS.put(Commands.DELETE_PRE_PICKED, new CommandContainer(new DeletePrePickedCommand(), true));
+        COMMANDS.put(Commands.HELP, new CommandContainer(new HelpCommand(this), false));
+        COMMANDS.put(Commands.LIST, new CommandContainer(new ListCommand(), false));
+        COMMANDS.put(Commands.MY_LIST, new CommandContainer(new MyListCommand(), false));
+        COMMANDS.put(Commands.PAUSE, new CommandContainer(new PauseCommand(), false));
+        COMMANDS.put(Commands.PICK, new CommandContainer(new PickCommand(), false));
+        COMMANDS.put(Commands.RESUME, new CommandContainer(new ResumeCommand(), false));
+        COMMANDS.put(Commands.SUBSCRIBE, new CommandContainer(new SubscribeCommand(), false));
+        COMMANDS.put(Commands.UNSUBSCRIBE, new CommandContainer(new UnsubscribeCommand(), false));
+        COMMANDS.entrySet().stream()
+                .forEach((item) -> register(item.getValue().getCommand()));
 
         registerDefaultAction(((absSender, message) -> {
             SendMessage commandUnknownMessage = new SendMessage();
@@ -40,7 +47,8 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
-            helpCommand.execute(absSender, message.getFrom(), message.getChat(), new String[] {});
+            COMMANDS.get(Commands.HELP)
+                    .getCommand().execute(absSender, message.getFrom(), message.getChat(), new String[] {});
         }));
     }
 
@@ -74,18 +82,7 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
         return BotConfig.MEMOLOG_TOKEN;
     }
 
-    /*
-    public void onUpdateReceived(Update update) {
 
-        Message message = update.getMessage();
-        if (message != null && message.hasText()) {
-            if (message.getText().equals("/help")) {
-                sendText(message, "hi, i'm a robot");
-            } else {
-                parseAndSendMessage(message);
-            }
-        }
-    }*/
 
     private void parseAndSendMessage(Message message) {
 
@@ -99,14 +96,14 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
             Integer count = Integer.parseInt(params[1]);
             Integer offset = Integer.parseInt(params[2]);
             VkWallGetter vkWallGetter = new VkWallGetter();
-            List<Item> items = vkWallGetter.getItems(domain, count, offset);
+            List<WallItem> wallItems = vkWallGetter.getItems(domain, count, offset);
 
-            items.stream()
-                    .forEach((item) -> {
-                        if (item.getText() != null && !item.getText().equals("")) {
-                            sendText(message, item.getText());
+            wallItems.stream()
+                    .forEach((wallItem) -> {
+                        if (wallItem.getText() != null && !wallItem.getText().equals("")) {
+                            sendText(message, wallItem.getText());
                         }
-                        item.getPhotos().stream()
+                        wallItem.getPhotos().stream()
                                 .forEach((photo) -> {
                                     sendPhoto(message, photo.getSrcBig());
                                 });

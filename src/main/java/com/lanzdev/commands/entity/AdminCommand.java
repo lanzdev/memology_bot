@@ -1,14 +1,14 @@
-package com.lanzdev.commands;
+package com.lanzdev.commands.entity;
 
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.commands.BotCommand;
 
-public class UnsubscribeCommand extends BotCommand{
+public class AdminCommand extends BotCommand{
 
-    public UnsubscribeCommand() {
-        super("unsubscribe", "Unsubscribe form public distribution");
+    public AdminCommand() {
+        super("admin", "See list of COMMANDS with admin permission level");
     }
 
     @Override

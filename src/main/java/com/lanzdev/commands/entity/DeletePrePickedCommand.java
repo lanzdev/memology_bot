@@ -1,14 +1,14 @@
-package com.lanzdev.commands;
+package com.lanzdev.commands.entity;
 
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.commands.BotCommand;
 
-public class SubscribeCommand extends BotCommand {
+public class DeletePrePickedCommand extends BotCommand {
 
-    public SubscribeCommand() {
-        super("subscribe", "Subscribe to new public");
+    public DeletePrePickedCommand() {
+        super("delete_pre_picked", "Delete pre picked publics from the list of pre picked publics");
     }
 
     @Override

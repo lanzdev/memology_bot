@@ -1,4 +1,4 @@
-package com.lanzdev.vk;
+package com.lanzdev.vk.wall;
 
 public class Photo {
 

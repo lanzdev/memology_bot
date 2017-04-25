@@ -1,9 +1,9 @@
-package com.lanzdev.vk;
+package com.lanzdev.vk.wall;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Item {
+public class WallItem {
 
 
     private Integer id;
@@ -12,7 +12,7 @@ public class Item {
     private String text;
     private List<Photo> photos;
 
-    public Item( ) {
+    public WallItem( ) {
 
         photos = new ArrayList<>();
     }

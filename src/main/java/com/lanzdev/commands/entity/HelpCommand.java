@@ -1,5 +1,6 @@
-package com.lanzdev.commands;
+package com.lanzdev.commands.entity;
 
+import com.lanzdev.MemologyBot;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
@@ -23,9 +24,10 @@ public class HelpCommand extends BotCommand {
         StringBuilder helpMessageBuilder = new StringBuilder("<b>Help</b>\n");
         helpMessageBuilder.append("These are registered commands for this Bot:\n\n");
 
-        for (BotCommand botCommand : commandRegistry.getRegisteredCommands()) {
-            helpMessageBuilder.append(botCommand.toString()).append("\n\n");
-        }
+        MemologyBot.COMMANDS.entrySet().stream()
+                .forEach((item) -> helpMessageBuilder.append(
+                        item.getValue().isForAdmin() ? ""
+                                : item.getValue().getCommand().toString() + "\n"));
 
         SendMessage helpMessage = new SendMessage();
         helpMessage.setChatId(chat.getId().toString());

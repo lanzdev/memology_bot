@@ -1,5 +1,6 @@
 package com.lanzdev.dao.mysql.implementation;
 
+import com.lanzdev.dao.ConnectionDB;
 import com.lanzdev.dao.entity.WallDao;
 import com.lanzdev.dao.mysql.AbstractMySqlDao;
 import com.lanzdev.dao.mysql.Query;
@@ -7,11 +8,32 @@ import com.lanzdev.model.entity.Wall;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MySqlWallDao
         extends AbstractMySqlDao<Wall, Integer>
         implements WallDao {
+
+    @Override
+    public List<Wall> getAllApproved( ) {
+
+        List<Wall> list = new LinkedList<>();
+        connection = ConnectionDB.getConnection();
+
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(Query.SELECT_ALL_APPROVED);
+            list = parseResultSet(rs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return list;
+    }
 
     @Override
     protected String getInsertQuery( ) {
@@ -46,15 +68,49 @@ public class MySqlWallDao
     @Override
     protected void prepareStatementForCreate(PreparedStatement stmt, Wall object) {
 
+        try {
+            stmt.setString(1, object.getWallDomain());
+            stmt.setBoolean(2, object.isApproved());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void prepareStatementForUpdate(PreparedStatement stmt, Wall object) {
 
+        try {
+            stmt.setString(1, object.getWallDomain());
+            stmt.setLong(2, object.getLastPostId());
+            stmt.setBoolean(3, object.isApproved());
+            stmt.setInt(4, object.getPopularity());
+            stmt.setInt(5, object.getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     protected List<Wall> parseResultSet(ResultSet rs) {
-        return null;
+
+        List<Wall> list = new LinkedList<>();
+
+        try {
+            while (rs.next()) {
+                Wall wall = new Wall();
+                wall.setId(rs.getInt("wall_id"));
+                wall.setWallDomain(rs.getString("wall_domain"));
+                wall.setLastPostId(rs.getLong("last_post_id"));
+                wall.setApproved(rs.getBoolean("approved"));
+                wall.setPopularity(rs.getInt("popularity"));
+                list.add(wall);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
+
 }

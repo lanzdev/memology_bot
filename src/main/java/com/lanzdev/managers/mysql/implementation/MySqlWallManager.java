@@ -30,4 +30,9 @@ public class MySqlWallManager implements WallManager {
     public List<Wall> getAll( ) {
         return dao.getAll();
     }
+
+    @Override
+    public List<Wall> getAllApproved( ) {
+        return dao.getAllApproved();
+    }
 }

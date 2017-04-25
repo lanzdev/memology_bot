@@ -1,14 +1,14 @@
-package com.lanzdev.commands;
+package com.lanzdev.commands.entity;
 
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.commands.BotCommand;
 
-public class LoginCommand extends BotCommand {
+public class SubscribeCommand extends BotCommand {
 
-    public LoginCommand() {
-        super("login", "Login to change list of pre picked publics");
+    public SubscribeCommand() {
+        super("subscribe", "Subscribe to new public");
     }
 
     @Override

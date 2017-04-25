@@ -1,5 +1,6 @@
 package com.lanzdev.dao.mysql.implementation;
 
+import com.lanzdev.dao.ConnectionDB;
 import com.lanzdev.dao.entity.SubscriptionDao;
 import com.lanzdev.dao.mysql.AbstractMySqlDao;
 import com.lanzdev.dao.mysql.Query;
@@ -14,6 +15,25 @@ import java.util.List;
 public class MySqlSubscriptionDao
         extends AbstractMySqlDao<Subscription, Integer>
         implements SubscriptionDao {
+
+    @Override
+    public List<Subscription> getSubscriptionsByChat(Long chatId) {
+
+        List<Subscription> list = new LinkedList<>();
+
+        connection = ConnectionDB.getConnection();
+
+        try (PreparedStatement stmt = connection.prepareStatement(Query.SELECT_SUBSCRIPTION_BY_CHAT)) {
+            stmt.setLong(1, chatId);
+            list = parseResultSet(stmt.executeQuery());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return list;
+    }
 
     @Override
     protected String getInsertQuery( ) {

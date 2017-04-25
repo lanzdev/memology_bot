@@ -1,4 +1,4 @@
-package com.lanzdev.vk;
+package com.lanzdev.vk.wall;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,21 +11,16 @@ import java.util.Scanner;
 
 public class VkWallGetter {
 
-    public List<Item> getItems(Long owner_id, Integer count, Integer offset) {
+    public List<WallItem> getItems(String domain, Integer count, Integer offset) {
 
-        String url = getUrl(owner_id) + "&count=" + count + "&offset=" + offset;
-        return getItems(url);
+        String url = "https://api.vk.com/method/wall.get?domain="
+                + domain + "&count=" + count + "&offset=" + offset;
+        return getItemsByUrl(url);
     }
 
-    public List<Item> getItems(String domain, Integer count, Integer offset) {
+    private List<WallItem> getItemsByUrl(String url) {
 
-        String url = getUrl(domain) + "&count=" + count + "&offset=" + offset;
-        return getItems(url);
-    }
-
-    private List<Item> getItems(String url) {
-
-        List<Item> items = new ArrayList<>();
+        List<WallItem> wallItems = new ArrayList<>();
         String response = null;
         try {
             response = getResponse(url);
@@ -33,19 +28,9 @@ public class VkWallGetter {
             e.printStackTrace();
         }
         if (response != null) {
-            items = parseJson(response);
+            wallItems = parseJson(response);
         }
-        return items;
-    }
-
-    private String getUrl(Long owner_id) {
-
-        return "https://api.vk.com/method/wall.get?owner_id=-" + owner_id;
-    }
-
-    private String getUrl(String domain) {
-
-        return "https://api.vk.com/method/wall.get?domain=" + domain;
+        return wallItems;
     }
 
     private String getResponse(String _url) throws IOException {
@@ -55,7 +40,7 @@ public class VkWallGetter {
 
         try (Scanner scanner = new Scanner(url.openStream())) {
             StringBuilder sb = new StringBuilder();
-            while (scanner.hasNext()) {
+            while (scanner.hasNextLine()) {
                 sb.append(scanner.nextLine());
             }
             response = sb.toString();
@@ -65,13 +50,14 @@ public class VkWallGetter {
     }
 
 
-    private List<Item> parseJson(String source) {
+    private List<WallItem> parseJson(String response) {
 
-        List<Item> items = new ArrayList<>();
+        List<WallItem> wallItems = new ArrayList<>();
 
-        JSONObject obj = new JSONObject(source);
-        JSONArray res = obj.getJSONArray("response");
-        for (Object currentObj : res) {
+        JSONObject obj = new JSONObject(response);
+        JSONArray array = obj.getJSONArray("response");
+
+        for (Object currentObj : array) {
 
             JSONObject currentItem;
             try {
@@ -80,11 +66,15 @@ public class VkWallGetter {
                 continue;
             }
 
-            Item item = new Item();
-            item.setId(currentItem.getInt("id"));
-            item.setFrom_id(currentItem.getInt("from_id"));
-            item.setDate(currentItem.getLong("date"));
-            item.setText(currentItem.getString("text"));
+            if (currentItem.has("is_pinned")
+                    && currentItem.getInt("is_pinned") == 1) {
+                continue;
+            }
+            WallItem wallItem = new WallItem();
+            wallItem.setId(currentItem.getInt("id"));
+            wallItem.setFrom_id(currentItem.getInt("from_id"));
+            wallItem.setDate(currentItem.getLong("date"));
+            wallItem.setText(currentItem.getString("text"));
 
             JSONArray attachments = currentItem.getJSONArray("attachments");
 
@@ -101,14 +91,14 @@ public class VkWallGetter {
                     photo.setSrcSmall(photoJson.getString("src_small"));
                     photo.setText(photoJson.getString("text"));
                     photo.setCreated(photoJson.getLong("created"));
-                    item.addPhoto(photo);
+                    wallItem.addPhoto(photo);
                 }
             }
 
-            items.add(item);
+            wallItems.add(wallItem);
         }
 
-        return items;
+        return wallItems;
 /*        Long dateLong = item.getLong("date");
         Date date = new Date(dateLong);
         System.out.println(dateLong);

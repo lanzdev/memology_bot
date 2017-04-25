@@ -1,14 +1,14 @@
-package com.lanzdev.commands;
+package com.lanzdev.commands.entity;
 
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.commands.BotCommand;
 
-public class ListCommand extends BotCommand{
+public class UnsubscribeCommand extends BotCommand{
 
-    public ListCommand() {
-        super("list", "See list of pre picked publics");
+    public UnsubscribeCommand() {
+        super("unsubscribe", "Unsubscribe form public distribution");
     }
 
     @Override
