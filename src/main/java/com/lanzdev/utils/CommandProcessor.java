@@ -103,6 +103,9 @@ public class CommandProcessor {
         chatManager.update(currentChat);
 
         StringBuilder pickedWallsBuilder = new StringBuilder();
+        if (pickedWalls.size() != 0) {
+            pickedWallsBuilder.append("Added: ");
+        }
         pickedWalls.stream()
                 .forEach(wall -> pickedWallsBuilder.append(wall.getId()).append(" : ")
                         .append(wall.getWallDomain()).append("\n"));

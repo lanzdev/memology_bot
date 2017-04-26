@@ -38,26 +38,28 @@ public class Main {
 
         SubscriptionManager subscriptionManager = new MySqlSubscriptionManager();
         WallManager wallManager = new MySqlWallManager();
-        VkWallGetter vkWallGetter = new VkWallGetter();
 
         new Runnable() {
 
             @Override
             public void run( ) {
 
-                List<Subscription> subscriptions = subscriptionManager.getAll();
+                while (true) {
+                    List<Subscription> subscriptions = subscriptionManager.getAll();
 
-                subscriptions.stream()
-                        .forEach(item -> {
-                            Wall wall = wallManager.getByDomain(item.getWallDomain());
-                            sendMessages(wall, item.getChatId(), bot);
-                            wallManager.update(wall);
-                        });
 
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    subscriptions.stream()
+                            .forEach(item -> {
+                                Wall wall = wallManager.getByDomain(item.getWallDomain());
+                                sendMessages(wall, item.getChatId(), bot);
+                                wallManager.update(wall);
+                            });
+
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }.run();
@@ -109,11 +111,12 @@ public class Main {
         for (int i = 0; i < wallItems.size(); i++) {
             if (wallItems.get(i).getId().equals(lastPostId)) {
                 last = i;
+                break;
             }
         }
 
         if (lastPostId != 0) {
-            for (int i = last; i > 0; i--) {
+            for (int i = last + 1; i < wallItems.size(); i++) {
                 list.add(wallItems.get(i));
             }
         } else {
