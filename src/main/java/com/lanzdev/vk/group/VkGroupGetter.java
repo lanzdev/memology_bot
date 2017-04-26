@@ -1,20 +1,25 @@
 package com.lanzdev.vk.group;
 
+import com.lanzdev.model.entity.Wall;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class VkGroupGetter {
 
-    public List<GroupItem> getItems(String domain) {
+    private List<Wall> wallList = new LinkedList<>();
 
-        String url = "https://api.vk.com/method/groups.getById?group_ids=" + domain;
-        return getItemsByUrl(url);
+    public List<GroupItem> getItems(List<Wall> walls) {
+
+        wallList = walls;
+        StringBuilder url = new StringBuilder("https://api.vk.com/method/groups.getById?group_ids=");
+        walls.stream()
+                .forEach((wall) -> url.append(wall.getWallDomain()).append(","));
+        url.deleteCharAt(url.length() - 1);
+        return getItemsByUrl(url.toString());
     }
 
     private List<GroupItem> getItemsByUrl(String url) {
@@ -55,12 +60,14 @@ public class VkGroupGetter {
         JSONObject obj = new JSONObject(response);
         JSONArray array = obj.getJSONArray("response");
 
+        Iterator<Wall> wallIterator = wallList.iterator();
         for (Object currentObj : array) {
 
             JSONObject currentItem = (JSONObject) currentObj;
 
             GroupItem groupItem = new GroupItem();
-            groupItem.setId(currentItem.getInt("gid"));
+            groupItem.setId(wallIterator.next().getId());
+            groupItem.setGid(currentItem.getInt("gid"));
             groupItem.setName(currentItem.getString("name"));
             groupItem.setScreenName(currentItem.getString("screen_name"));
 

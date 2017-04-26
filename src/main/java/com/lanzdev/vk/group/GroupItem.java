@@ -3,6 +3,7 @@ package com.lanzdev.vk.group;
 public class GroupItem {
 
     private Integer id;
+    private Integer gid;
     private String name;
     private String screenName;
 
@@ -15,6 +16,14 @@ public class GroupItem {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getGid( ) {
+        return gid;
+    }
+
+    public void setGid(Integer gid) {
+        this.gid = gid;
     }
 
     public String getName( ) {

@@ -3,6 +3,9 @@ package com.lanzdev.commands.entity;
 import com.lanzdev.managers.entity.WallManager;
 import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
 import com.lanzdev.model.entity.Wall;
+import com.lanzdev.utils.Counter;
+import com.lanzdev.vk.group.GroupItem;
+import com.lanzdev.vk.group.VkGroupGetter;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
@@ -21,14 +24,20 @@ public class ListCommand extends BotCommand{
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
-        StringBuilder listMessageBuilder = new StringBuilder();
-
         WallManager wallManager = new MySqlWallManager();
         List<Wall> walls = wallManager.getAllApproved();
 
-        walls.stream()
-                .forEach((wall) -> listMessageBuilder.append(wall.getId()).append(": ")
-                        .append(wall.getWallDomain()).append("\n"));
+        VkGroupGetter groupGetter = new VkGroupGetter();
+        List<GroupItem> groupItems = groupGetter.getItems(walls);
+
+        Counter counter = new Counter();
+
+        StringBuilder listMessageBuilder = new StringBuilder();
+        groupItems.stream()
+                .forEach((group) -> listMessageBuilder
+                        .append(group.getId())
+                        .append(": ").append(group.getScreenName())
+                        .append(" - ").append(group.getName()).append("\n"));
 
         SendMessage listMessage = new SendMessage();
         listMessage.setChatId(chat.getId().toString());
