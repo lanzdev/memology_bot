@@ -12,6 +12,7 @@ public class Commands {
     public static final String PAUSE = "pause";
     public static final String PICK = "pick";
     public static final String RESUME = "resume";
+    public static final String START = "start";
     public static final String SUBSCRIBE = "subscribe";
     public static final String UNSUBSCRIBE = "unsubscribe";
 }

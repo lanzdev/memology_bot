@@ -12,8 +12,8 @@ public class MySqlSubscriptionManager implements SubscriptionManager {
     private SubscriptionDao dao = new MySqlSubscriptionDao();
 
     @Override
-    public Subscription add(Subscription object) {
-        return dao.create(object);
+    public void add(Subscription object) {
+        dao.create(object);
     }
 
     @Override

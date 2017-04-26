@@ -8,6 +8,7 @@ public class Chat implements Identified<Long> {
     private String firstName;
     private String lastName;
     private Boolean suspended;
+    private String lastCommand;
 
     public Chat( ) {
     }
@@ -42,5 +43,13 @@ public class Chat implements Identified<Long> {
 
     public void setSuspended(Boolean suspended) {
         this.suspended = suspended;
+    }
+
+    public String getLastCommand( ) {
+        return lastCommand;
+    }
+
+    public void setLastCommand(String lastCommand) {
+        this.lastCommand = lastCommand;
     }
 }

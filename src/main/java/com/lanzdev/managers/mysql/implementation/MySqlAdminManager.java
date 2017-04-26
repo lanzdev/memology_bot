@@ -12,8 +12,8 @@ public class MySqlAdminManager implements AdminManager {
     private AdminDao dao = new MySqlAdminDao();
 
     @Override
-    public Admin add(Admin object) {
-        return dao.create(object);
+    public void add(Admin object) {
+        dao.create(object);
     }
 
     @Override

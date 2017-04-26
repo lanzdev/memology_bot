@@ -36,6 +36,25 @@ public class MySqlWallDao
     }
 
     @Override
+    public Wall getByDomain(String domain) {
+
+        Wall wall = null;
+        connection = ConnectionDB.getConnection();
+
+        try (PreparedStatement stmt = connection.prepareStatement(Query.SELECT_BY_DOMAIN)) {
+            stmt.setString(1, domain);
+            ResultSet rs = stmt.executeQuery();
+            wall = parseResultSet(rs).iterator().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return wall;
+    }
+
+    @Override
     protected String getInsertQuery( ) {
         return Query.INSERT_WALL;
     }

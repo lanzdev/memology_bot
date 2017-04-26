@@ -15,11 +15,11 @@ public class Query {
     /*
      * Chat queries
      */
-    public static final String INSERT_CHAT = "INSERT INTO chat (chat_id, first_name, last_name, is_suspended) VALUES (?, ?, ?, ?)";
+    public static final String INSERT_CHAT = "INSERT INTO chat (chat_id, first_name, last_name, suspended, last_command) VALUES (?, ?, ?, ?, ?)";
     public static final String SELECT_LAST_CHAT = "SELECT * FROM chat WHERE chat_id = last_insert_id()";
     public static final String SELECT_CHAT_BY_ID = "SELECT * FROM chat WHERE chat_id = ?";
     public static final String SELECT_ALL_CHATS = "SELECT * FROM chat";
-    public static final String UPDATE_CHAT = "UPDATE chat SET first_name = ?, last_name = ?, is_suspended = ? WHERE chat_id = ?";
+    public static final String UPDATE_CHAT = "UPDATE chat SET first_name = ?, last_name = ?, suspended = ?, last_command = ? WHERE chat_id = ?";
     public static final String DELETE_CHAT = "DELETE FROM chat WHERE chat_id = ?";
 
     /*
@@ -41,6 +41,7 @@ public class Query {
     public static final String SELECT_WALL_BY_ID = "SELECT * FROM wall WHERE wall_id = ?";
     public static final String SELECT_ALL_WALLS = "SELECT * FROM wall";
     public static final String SELECT_ALL_APPROVED = "SELECT * FROM wall WHERE approved = 1";
+    public static final String SELECT_BY_DOMAIN = "SELECT * FROM wall WHERE wall_domain = ?";
     public static final String UPDATE_WALL = "UPDATE wall SET wall_domain = ?, last_post_id = ?, approved = ?, popularity = ? WHERE wall_id = ?";
     public static final String DELETE_WALL = "DELETE FROM wall WHERE wall_id = ?";
 }

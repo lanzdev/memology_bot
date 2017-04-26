@@ -53,6 +53,7 @@ public class MySqlChatDao
             stmt.setString(2, object.getFirstName());
             stmt.setString(3, object.getLastName());
             stmt.setBoolean(4, object.isSuspended());
+            stmt.setString(5, object.getLastCommand());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -60,7 +61,16 @@ public class MySqlChatDao
 
     @Override
     protected void prepareStatementForUpdate(PreparedStatement stmt, Chat object) {
-        throw new UnsupportedOperationException();
+
+        try {
+            stmt.setString(1, object.getFirstName());
+            stmt.setString(2,object.getLastName());
+            stmt.setBoolean(3, object.isSuspended());
+            stmt.setString(4, object.getLastCommand());
+            stmt.setLong(5, object.getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -75,6 +85,7 @@ public class MySqlChatDao
                 chat.setFirstName(rs.getString("first_name"));
                 chat.setLastName(rs.getString("last_name"));
                 chat.setSuspended(rs.getBoolean("suspended"));
+                chat.setLastCommand(rs.getString("last_command"));
                 list.add(chat);
             }
         } catch (SQLException e) {

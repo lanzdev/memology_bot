@@ -3,6 +3,9 @@ package com.lanzdev;
 import com.lanzdev.commands.CommandContainer;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.commands.entity.*;
+import com.lanzdev.managers.entity.ChatManager;
+import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
+import com.lanzdev.utils.CommandProcessor;
 import com.lanzdev.vk.wall.WallItem;
 import com.lanzdev.vk.wall.VkWallGetter;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -19,6 +22,7 @@ import java.util.Map;
 
 public class MemologyBot extends TelegramLongPollingCommandBot {
 
+
     public static final Map<String, CommandContainer> COMMANDS = new HashMap<>();
 
     public MemologyBot( ) {
@@ -32,6 +36,7 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
         COMMANDS.put(Commands.PAUSE, new CommandContainer(new PauseCommand(), false));
         COMMANDS.put(Commands.PICK, new CommandContainer(new PickCommand(), false));
         COMMANDS.put(Commands.RESUME, new CommandContainer(new ResumeCommand(), false));
+        COMMANDS.put(Commands.START, new CommandContainer(new StartCommand(), false));
         COMMANDS.put(Commands.SUBSCRIBE, new CommandContainer(new SubscribeCommand(), false));
         COMMANDS.put(Commands.UNSUBSCRIBE, new CommandContainer(new UnsubscribeCommand(), false));
         COMMANDS.entrySet().stream()
@@ -58,17 +63,24 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
         if (update.hasMessage()) {
             Message message = update.getMessage();
 
-            if (message.hasText()) {
-                SendMessage echoMessage = new SendMessage();
-                echoMessage.setChatId(message.getChatId());
-                echoMessage.setText("Hey here's your message:\n" + message.getText());
+            ChatManager chatManager = new MySqlChatManager();
+            com.lanzdev.model.entity.Chat currentChat = chatManager.getById(message.getChatId());
+            String lastCommand = currentChat.getLastCommand();
 
-                try {
-                    sendMessage(echoMessage);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            }
+            CommandProcessor processor = new CommandProcessor(message, lastCommand, this);
+            processor.process();
+//
+//            if (message.hasText()) {
+//                SendMessage echoMessage = new SendMessage();
+//                echoMessage.setChatId(message.getChatId());
+//                echoMessage.setText("Hey here's your message:\n" + message.getText());
+//
+//                try {
+//                    sendMessage(echoMessage);
+//                } catch (TelegramApiException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
 
@@ -81,8 +93,6 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
     public String getBotToken( ) {
         return BotConfig.MEMOLOG_TOKEN;
     }
-
-
 
     private void parseAndSendMessage(Message message) {
 

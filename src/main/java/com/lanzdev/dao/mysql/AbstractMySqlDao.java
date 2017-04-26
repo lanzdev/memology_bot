@@ -32,7 +32,7 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
     protected abstract String getDeleteQuery( );
 
     @Override
-    public T create(T object) {
+    public void create(T object) {
 
         connection = ConnectionDB.getConnection();
 
@@ -42,23 +42,6 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        T created = null;
-
-        try (PreparedStatement stmt = connection.prepareStatement(getSelectLastQuery())) {
-            ResultSet rs = stmt.executeQuery();
-            List<T> list = parseResultSet(rs);
-            if (list == null || list.size() != 1) {
-                throw new DaoException("Can't get last added object");
-            }
-            created = list.iterator().next();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection();
-        }
-
-        return created;
     }
 
     @Override

@@ -8,4 +8,5 @@ import java.util.List;
 public interface WallDao extends GenericDao<Wall, Integer> {
 
     List<Wall> getAllApproved();
+    Wall getByDomain(String domain);
 }

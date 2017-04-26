@@ -8,4 +8,6 @@ import java.util.List;
 public interface WallManager extends Manager<Wall, Integer> {
 
     List<Wall> getAllApproved();
+
+    Wall getByDomain(String domain);
 }

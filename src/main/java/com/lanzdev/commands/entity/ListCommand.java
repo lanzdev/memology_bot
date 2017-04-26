@@ -1,9 +1,11 @@
 package com.lanzdev.commands.entity;
 
+import com.lanzdev.commands.Commands;
+import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.WallManager;
+import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
 import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
 import com.lanzdev.model.entity.Wall;
-import com.lanzdev.utils.Counter;
 import com.lanzdev.vk.group.GroupItem;
 import com.lanzdev.vk.group.VkGroupGetter;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -15,7 +17,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.List;
 
-public class ListCommand extends BotCommand{
+public class ListCommand extends BotCommand {
 
     public ListCommand() {
         super("list", "See list of pre picked publics");
@@ -30,7 +32,7 @@ public class ListCommand extends BotCommand{
         VkGroupGetter groupGetter = new VkGroupGetter();
         List<GroupItem> groupItems = groupGetter.getItems(walls);
 
-        Counter counter = new Counter();
+//        Counter counter = new Counter();
 
         StringBuilder listMessageBuilder = new StringBuilder();
         groupItems.stream()
@@ -48,5 +50,10 @@ public class ListCommand extends BotCommand{
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+
+        ChatManager chatManager = new MySqlChatManager();
+        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chat.getId());
+        currentChat.setLastCommand(Commands.LIST);
+        chatManager.update(currentChat);
     }
 }

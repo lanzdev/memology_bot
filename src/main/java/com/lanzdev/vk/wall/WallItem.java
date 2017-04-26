@@ -6,7 +6,7 @@ import java.util.List;
 public class WallItem {
 
 
-    private Integer id;
+    private Long id;
     private Integer from_id;
     private Long date;
     private String text;
@@ -17,11 +17,11 @@ public class WallItem {
         photos = new ArrayList<>();
     }
 
-    public Integer getId( ) {
+    public Long getId( ) {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

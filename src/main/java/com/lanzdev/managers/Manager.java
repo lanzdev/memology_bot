@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Manager<T, PK> {
 
-    T add(T object);
+    void add(T object);
 
     void update(T object);
 

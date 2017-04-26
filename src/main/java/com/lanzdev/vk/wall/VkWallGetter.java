@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,7 +16,9 @@ public class VkWallGetter {
 
         String url = "https://api.vk.com/method/wall.get?domain="
                 + domain + "&count=" + count + "&offset=" + offset;
-        return getItemsByUrl(url);
+        List<WallItem> list = getItemsByUrl(url);
+        Collections.reverse(list);
+        return list;
     }
 
     private List<WallItem> getItemsByUrl(String url) {
@@ -71,7 +74,7 @@ public class VkWallGetter {
                 continue;
             }
             WallItem wallItem = new WallItem();
-            wallItem.setId(currentItem.getInt("id"));
+            wallItem.setId(currentItem.getLong("id"));
             wallItem.setFrom_id(currentItem.getInt("from_id"));
             wallItem.setDate(currentItem.getLong("date"));
             wallItem.setText(currentItem.getString("text"));
@@ -99,11 +102,6 @@ public class VkWallGetter {
         }
 
         return wallItems;
-/*        Long dateLong = item.getLong("date");
-        Date date = new Date(dateLong);
-        System.out.println(dateLong);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        System.out.println(dateFormat.format(date));*/
     }
 
 

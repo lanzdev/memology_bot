@@ -12,8 +12,8 @@ public class MySqlChatManager implements ChatManager {
     private ChatDao dao = new MySqlChatDao();
 
     @Override
-    public Chat add(Chat object) {
-        return dao.create(object);
+    public void add(Chat object) {
+        dao.create(object);
     }
 
     @Override

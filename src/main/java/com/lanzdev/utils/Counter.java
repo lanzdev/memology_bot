@@ -4,8 +4,8 @@ public class Counter {
 
     private int current;
 
-    public Counter( ) {
-        current = 1;
+    public Counter(int beginning) {
+        current = beginning;
     }
 
     public int increase( ) {

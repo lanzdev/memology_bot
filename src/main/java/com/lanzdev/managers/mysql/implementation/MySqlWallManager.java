@@ -12,8 +12,8 @@ public class MySqlWallManager implements WallManager {
     private WallDao dao = new MySqlWallDao();
 
     @Override
-    public Wall add(Wall object) {
-        return dao.create(object);
+    public void add(Wall object) {
+        dao.create(object);
     }
 
     @Override
@@ -34,5 +34,10 @@ public class MySqlWallManager implements WallManager {
     @Override
     public List<Wall> getAllApproved( ) {
         return dao.getAllApproved();
+    }
+
+    @Override
+    public Wall getByDomain(String domain) {
+        return dao.getByDomain(domain);
     }
 }
