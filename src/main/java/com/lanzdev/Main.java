@@ -6,6 +6,8 @@ import com.lanzdev.managers.mysql.implementation.MySqlSubscriptionManager;
 import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
 import com.lanzdev.model.entity.Subscription;
 import com.lanzdev.model.entity.Wall;
+import com.lanzdev.vk.group.GroupItem;
+import com.lanzdev.vk.group.VkGroupGetter;
 import com.lanzdev.vk.wall.VkWallGetter;
 import com.lanzdev.vk.wall.WallItem;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -16,6 +18,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Main {
@@ -74,6 +77,22 @@ public class Main {
         List<WallItem> newItems = filterWall(wallItems, wall.getLastPostId());
 
         if (newItems.size() != 0) {
+
+            GroupItem groupItem = new VkGroupGetter()
+                    .getItems(Collections.singletonList(wall)).iterator().next();
+            SendMessage sendPublic = new SendMessage();
+            sendPublic.setChatId(chatId);
+            StringBuilder sendPublicBuilder = new StringBuilder();
+            sendPublicBuilder.append("<b>").append(groupItem.getName()).append("</b>");
+            sendPublic.enableHtml(true);
+            sendPublic.setText(sendPublicBuilder.toString());
+
+            try {
+                bot.sendMessage(sendPublic);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+
             newItems.stream()
                     .forEach(item -> {
                         if (item.getText() != null && !item.getText().isEmpty()) {
