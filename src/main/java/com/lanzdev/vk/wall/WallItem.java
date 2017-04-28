@@ -58,8 +58,19 @@ public class WallItem {
         photos.add(photo);
     }
 
-
     @Override
+    public String toString( ) {
+        return "WallItem{" +
+                "id=" + id +
+                ", from_id=" + from_id +
+                ", date=" + date +
+                ", text='" + text + '\'' +
+                ", photos=" + photos +
+                '}';
+    }
+
+
+    /*@Override
     public String toString( ) {
 
         StringBuilder sb = new StringBuilder();
@@ -88,7 +99,7 @@ public class WallItem {
         sb.append("\n");
         sb.append("}");
         return sb.toString();
-    }
+    }*/
 
 
 }

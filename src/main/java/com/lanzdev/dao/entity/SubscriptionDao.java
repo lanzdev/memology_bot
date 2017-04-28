@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SubscriptionDao extends GenericDao<Subscription, Integer> {
 
-    List<Subscription> getSubscriptionsByChat(Long chatId);
+    List<Subscription> getByChat(Long chatId);
 }

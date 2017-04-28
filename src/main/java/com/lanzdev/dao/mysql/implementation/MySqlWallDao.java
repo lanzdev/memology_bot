@@ -44,7 +44,10 @@ public class MySqlWallDao
         try (PreparedStatement stmt = connection.prepareStatement(Query.SELECT_BY_DOMAIN)) {
             stmt.setString(1, domain);
             ResultSet rs = stmt.executeQuery();
-            wall = parseResultSet(rs).iterator().next();
+            List<Wall> list = parseResultSet(rs);
+            if (list.size() != 0) {
+                wall = list.iterator().next();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -100,10 +103,9 @@ public class MySqlWallDao
 
         try {
             stmt.setString(1, object.getWallDomain());
-            stmt.setLong(2, object.getLastPostId());
-            stmt.setBoolean(3, object.isApproved());
-            stmt.setInt(4, object.getPopularity());
-            stmt.setInt(5, object.getId());
+            stmt.setBoolean(2, object.isApproved());
+            stmt.setInt(3, object.getPopularity());
+            stmt.setInt(4, object.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -120,7 +122,6 @@ public class MySqlWallDao
                 Wall wall = new Wall();
                 wall.setId(rs.getInt("wall_id"));
                 wall.setWallDomain(rs.getString("wall_domain"));
-                wall.setLastPostId(rs.getLong("last_post_id"));
                 wall.setApproved(rs.getBoolean("approved"));
                 wall.setPopularity(rs.getInt("popularity"));
                 list.add(wall);

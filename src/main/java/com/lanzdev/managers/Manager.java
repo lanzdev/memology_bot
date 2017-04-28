@@ -11,4 +11,6 @@ public interface Manager<T, PK> {
     T getById(PK id);
 
     List<T> getAll();
+
+    void delete(T object);
 }

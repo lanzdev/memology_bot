@@ -20,7 +20,6 @@ public class PickCommand extends BotCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
-
         StringBuilder pickMessageBuilder = new StringBuilder();
         pickMessageBuilder.append("Please enter numbers from list separated by commas");
 

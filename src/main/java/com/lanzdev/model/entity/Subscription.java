@@ -7,6 +7,7 @@ public class Subscription implements Identified<Integer> {
     private Integer id;
     private Long chatId;
     private String wallDomain;
+    private Long lastPostId;
 
     public Subscription( ) {
     }
@@ -33,5 +34,23 @@ public class Subscription implements Identified<Integer> {
 
     public void setWallDomain(String wallDomain) {
         this.wallDomain = wallDomain;
+    }
+
+    public Long getLastPostId( ) {
+        return lastPostId;
+    }
+
+    public void setLastPostId(Long lastPostId) {
+        this.lastPostId = lastPostId;
+    }
+
+    @Override
+    public String toString( ) {
+        return "Subscription{" +
+                "id=" + id +
+                ", chatId=" + chatId +
+                ", wallDomain='" + wallDomain + '\'' +
+                ", lastPostId=" + lastPostId +
+                '}';
     }
 }

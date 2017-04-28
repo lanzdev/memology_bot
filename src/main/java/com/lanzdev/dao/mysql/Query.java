@@ -30,7 +30,7 @@ public class Query {
     public static final String SELECT_SUBSCRIPTION_BY_ID = "SELECT * FROM subscription WHERE subscription_id = ?";
     public static final String SELECT_ALL_SUBSCRIPTIONS = "SELECT * FROM subscription";
     public static final String SELECT_SUBSCRIPTION_BY_CHAT = "SELECT * FROM subscription WHERE chat_id = ?";
-    public static final String UPDATE_SUBSCRIPTION = "UPDATE subscription SET chat_id = ?, wall_domain = ? WHERE subscription_id = ?";
+    public static final String UPDATE_SUBSCRIPTION = "UPDATE subscription SET chat_id = ?, wall_domain = ?, last_post_id = ? WHERE subscription_id = ?";
     public static final String DELETE_SUBSCRIPTION = "DELETE FROM subscription WHERE subscription_id = ?";
 
     /*
@@ -42,6 +42,6 @@ public class Query {
     public static final String SELECT_ALL_WALLS = "SELECT * FROM wall";
     public static final String SELECT_ALL_APPROVED = "SELECT * FROM wall WHERE approved = 1";
     public static final String SELECT_BY_DOMAIN = "SELECT * FROM wall WHERE wall_domain = ?";
-    public static final String UPDATE_WALL = "UPDATE wall SET wall_domain = ?, last_post_id = ?, approved = ?, popularity = ? WHERE wall_id = ?";
+    public static final String UPDATE_WALL = "UPDATE wall SET wall_domain = ?, approved = ?, popularity = ? WHERE wall_id = ?";
     public static final String DELETE_WALL = "DELETE FROM wall WHERE wall_id = ?";
 }

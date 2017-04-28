@@ -53,6 +53,18 @@ public class Photo {
 
     @Override
     public String toString( ) {
+        return "Photo{" +
+                "src='" + src + '\'' +
+                ", srcBig='" + srcBig + '\'' +
+                ", srcSmall='" + srcSmall + '\'' +
+                ", text='" + text + '\'' +
+                ", created=" + created +
+                '}';
+    }
+
+    /*
+    @Override
+    public String toString( ) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -71,4 +83,5 @@ public class Photo {
 
         return sb.toString();
     }
+    */
 }

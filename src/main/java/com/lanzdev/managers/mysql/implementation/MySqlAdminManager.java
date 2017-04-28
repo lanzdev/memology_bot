@@ -30,4 +30,9 @@ public class MySqlAdminManager implements AdminManager {
     public List<Admin> getAll( ) {
         return dao.getAll();
     }
+
+    @Override
+    public void delete(Admin object) {
+        dao.delete(object);
+    }
 }

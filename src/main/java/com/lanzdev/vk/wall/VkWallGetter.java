@@ -79,22 +79,24 @@ public class VkWallGetter {
             wallItem.setDate(currentItem.getLong("date"));
             wallItem.setText(currentItem.getString("text"));
 
-            JSONArray attachments = currentItem.getJSONArray("attachments");
+            if (currentItem.has("attachments")) {
+                JSONArray attachments = currentItem.getJSONArray("attachments");
 
-            for (Object attachment : attachments) {
+                for (Object attachment : attachments) {
 
-                JSONObject jsonAttachment = (JSONObject) attachment;
+                    JSONObject jsonAttachment = (JSONObject) attachment;
 
-                if (jsonAttachment.getString("type").equals("photo")) {
+                    if (jsonAttachment.getString("type").equals("photo")) {
 
-                    JSONObject photoJson = jsonAttachment.getJSONObject("photo");
-                    Photo photo = new Photo();
-                    photo.setSrc(photoJson.getString("src"));
-                    photo.setSrcBig(photoJson.getString("src_big"));
-                    photo.setSrcSmall(photoJson.getString("src_small"));
-                    photo.setText(photoJson.getString("text"));
-                    photo.setCreated(photoJson.getLong("created"));
-                    wallItem.addPhoto(photo);
+                        JSONObject photoJson = jsonAttachment.getJSONObject("photo");
+                        Photo photo = new Photo();
+                        photo.setSrc(photoJson.getString("src"));
+                        photo.setSrcBig(photoJson.getString("src_big"));
+                        photo.setSrcSmall(photoJson.getString("src_small"));
+                        photo.setText(photoJson.getString("text"));
+                        photo.setCreated(photoJson.getLong("created"));
+                        wallItem.addPhoto(photo);
+                    }
                 }
             }
 

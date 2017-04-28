@@ -8,6 +8,7 @@ import com.lanzdev.model.entity.Subscription;
 import com.lanzdev.model.entity.Wall;
 import com.lanzdev.vk.group.GroupItem;
 import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.wall.Photo;
 import com.lanzdev.vk.wall.VkWallGetter;
 import com.lanzdev.vk.wall.WallItem;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -33,6 +34,7 @@ public class Main {
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }
+
         Main main = new Main();
         main.distribution(bot);
     }
@@ -49,15 +51,12 @@ public class Main {
 
                 while (true) {
                     List<Subscription> subscriptions = subscriptionManager.getAll();
-
-
                     subscriptions.stream()
                             .forEach(item -> {
                                 Wall wall = wallManager.getByDomain(item.getWallDomain());
-                                sendMessages(wall, item.getChatId(), bot);
-                                wallManager.update(wall);
+                                sendMessages(wall, item, bot);
+                                subscriptionManager.update(item);
                             });
-
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
@@ -66,63 +65,74 @@ public class Main {
                 }
             }
         }.run();
-
-
     }
 
-    private void sendMessages(Wall wall, Long chatId, MemologyBot bot) {
+    private void sendMessages(Wall wall, Subscription subscription, MemologyBot bot) {
 
         VkWallGetter vkWallGetter = new VkWallGetter();
         List<WallItem> wallItems = vkWallGetter.getItems(wall.getWallDomain(), 10, 0);
-        List<WallItem> newItems = filterWall(wallItems, wall.getLastPostId());
-
+        List<WallItem> newItems = pickNewest(wallItems, subscription.getLastPostId());
         if (newItems.size() != 0) {
-
-            GroupItem groupItem = new VkGroupGetter()
-                    .getItems(Collections.singletonList(wall)).iterator().next();
-            SendMessage sendPublic = new SendMessage();
-            sendPublic.setChatId(chatId);
-            StringBuilder sendPublicBuilder = new StringBuilder();
-            sendPublicBuilder.append("<b>").append(groupItem.getName()).append("</b>");
-            sendPublic.enableHtml(true);
-            sendPublic.setText(sendPublicBuilder.toString());
-
-            try {
-                bot.sendMessage(sendPublic);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-
+            sendPostsOwner(wall, subscription, bot);
             newItems.stream()
                     .forEach(item -> {
-                        if (item.getText() != null && !item.getText().isEmpty()) {
-                            SendMessage sendMessage = new SendMessage();
-                            sendMessage.setChatId(chatId);
-                            sendMessage.setText(item.getText());
-                            try {
-                                bot.sendMessage(sendMessage);
-                            } catch (TelegramApiException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
+                        sendPostsText(item, subscription, bot);
                         item.getPhotos().stream()
                                 .forEach(photo -> {
-                                    SendPhoto sendPhoto = new SendPhoto();
-                                    sendPhoto.setChatId(chatId);
-                                    sendPhoto.setPhoto(photo.getSrcBig());
-                                    try {
-                                        bot.sendPhoto(sendPhoto);
-                                    } catch (TelegramApiException e) {
-                                        e.printStackTrace();
-                                    }
+                                    sendPostsPhoto(photo, subscription, bot);
                                 });
                     });
-            wall.setLastPostId(newItems.get(newItems.size() - 1).getId());
+            subscription.setLastPostId(newItems.get(newItems.size() - 1).getId());
         }
     }
 
-    private List<WallItem> filterWall(List<WallItem> wallItems, Long lastPostId) {
+    private void sendPostsOwner(Wall wall, Subscription subscription, MemologyBot bot) {
+
+        GroupItem groupItem = new VkGroupGetter().getItems(Collections.singletonList(wall)).iterator().next();
+
+        StringBuilder sendPublicBuilder = new StringBuilder();
+        sendPublicBuilder.append("<b>").append(groupItem.getName()).append("</b>");
+
+        SendMessage sendPublic = new SendMessage();
+        sendPublic.setChatId(subscription.getChatId());
+        sendPublic.enableHtml(true);
+        sendPublic.setText(sendPublicBuilder.toString());
+        try {
+            bot.sendMessage(sendPublic);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendPostsText(WallItem item, Subscription subscription, MemologyBot bot) {
+
+        if (item.getText() != null && !item.getText().isEmpty()) {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(subscription.getChatId());
+            sendMessage.setText(item.getText());
+            try {
+                bot.sendMessage(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void sendPostsPhoto(Photo photo, Subscription subscription, MemologyBot bot) {
+
+        if (photo.getSrcBig() != null && !photo.getSrcBig().isEmpty()) {
+            SendPhoto sendPhoto = new SendPhoto();
+            sendPhoto.setChatId(subscription.getChatId());
+            sendPhoto.setPhoto(photo.getSrcBig());
+            try {
+                bot.sendPhoto(sendPhoto);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private List<WallItem> pickNewest(List<WallItem> wallItems, Long lastPostId) {
 
         List<WallItem> list = new ArrayList<>();
 
@@ -139,7 +149,7 @@ public class Main {
                 list.add(wallItems.get(i));
             }
         } else {
-            list = wallItems;
+            list = Collections.singletonList(wallItems.get(wallItems.size() - 1));
         }
 
         return list;

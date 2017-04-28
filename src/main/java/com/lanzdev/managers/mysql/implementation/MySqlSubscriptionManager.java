@@ -30,4 +30,14 @@ public class MySqlSubscriptionManager implements SubscriptionManager {
     public List<Subscription> getAll( ) {
         return dao.getAll();
     }
+
+    @Override
+    public List<Subscription> getByChat(Long chatId) {
+        return dao.getByChat(chatId);
+    }
+
+    @Override
+    public void delete(Subscription object) {
+        dao.delete(object);
+    }
 }

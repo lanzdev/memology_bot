@@ -40,4 +40,9 @@ public class MySqlWallManager implements WallManager {
     public Wall getByDomain(String domain) {
         return dao.getByDomain(domain);
     }
+
+    @Override
+    public void delete(Wall object) {
+        dao.delete(object);
+    }
 }

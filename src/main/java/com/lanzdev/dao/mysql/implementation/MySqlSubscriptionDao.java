@@ -17,7 +17,7 @@ public class MySqlSubscriptionDao
         implements SubscriptionDao {
 
     @Override
-    public List<Subscription> getSubscriptionsByChat(Long chatId) {
+    public List<Subscription> getByChat(Long chatId) {
 
         List<Subscription> list = new LinkedList<>();
 
@@ -79,7 +79,14 @@ public class MySqlSubscriptionDao
     @Override
     protected void prepareStatementForUpdate(PreparedStatement stmt, Subscription object) {
 
-        throw new UnsupportedOperationException();
+        try {
+            stmt.setLong(1, object.getChatId());
+            stmt.setString(2, object.getWallDomain());
+            stmt.setLong(3, object.getLastPostId());
+            stmt.setInt(4, object.getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -90,8 +97,10 @@ public class MySqlSubscriptionDao
         try {
             while (rs.next()) {
                 Subscription subscription = new Subscription();
+                subscription.setId(rs.getInt("subscription_id"));
                 subscription.setChatId(rs.getLong("chat_id"));
                 subscription.setWallDomain(rs.getString("wall_domain"));
+                subscription.setLastPostId(rs.getLong("last_post_id"));
                 list.add(subscription);
             }
         } catch (SQLException e) {

@@ -40,7 +40,6 @@ public class ListCommand extends BotCommand {
                         .append(group.getId())
                         .append(": ").append(group.getScreenName())
                         .append(" - ").append(group.getName()).append("\n"));
-
         SendMessage listMessage = new SendMessage();
         listMessage.setChatId(chat.getId().toString());
         listMessage.setText(listMessageBuilder.toString());

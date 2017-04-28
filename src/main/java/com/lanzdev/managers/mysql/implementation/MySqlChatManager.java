@@ -30,4 +30,9 @@ public class MySqlChatManager implements ChatManager {
     public List<Chat> getAll( ) {
         return dao.getAll();
     }
+
+    @Override
+    public void delete(Chat object) {
+        dao.delete(object);
+    }
 }
