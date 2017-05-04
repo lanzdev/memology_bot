@@ -1,16 +1,23 @@
 package com.lanzdev.vk.wall;
 
+import com.lanzdev.util.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
+/**
+ * {@link VkWallGetter VkWallGetter} gets wall items from vk using vk api, {@link #parseJson(String) parses json response},
+ * puts it into list and {@link #getItems(String, Integer, Integer) returns list of wall items} .
+ */
 public class VkWallGetter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VkWallGetter.class);
 
     public List<WallItem> getItems(String domain, Integer count, Integer offset) {
 
@@ -26,9 +33,9 @@ public class VkWallGetter {
         List<WallItem> wallItems = new ArrayList<>();
         String response = null;
         try {
-            response = getResponse(url);
+            response = Util.getResponse(url);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while getting response from url: {}.", url, e);
         }
         if (response != null) {
             wallItems = parseJson(response);
@@ -36,48 +43,23 @@ public class VkWallGetter {
         return wallItems;
     }
 
-    private String getResponse(String _url) throws IOException {
-
-        URL url = new URL(_url);
-        String response;
-
-        try (Scanner scanner = new Scanner(url.openStream())) {
-            StringBuilder sb = new StringBuilder();
-            while (scanner.hasNextLine()) {
-                sb.append(scanner.nextLine());
-            }
-            response = sb.toString();
-        }
-
-        return response;
-    }
-
-
     private List<WallItem> parseJson(String response) {
 
         List<WallItem> wallItems = new ArrayList<>();
 
         JSONObject obj = new JSONObject(response);
         JSONArray array = obj.getJSONArray("response");
+        array.remove(0);
 
         for (Object currentObj : array) {
 
-            JSONObject currentItem;
-            try {
-                currentItem = (JSONObject) currentObj;
-            } catch (Exception e) {
-                continue;
-            }
-
+            JSONObject currentItem = (JSONObject)currentObj;
             if (currentItem.has("is_pinned")
                     && currentItem.getInt("is_pinned") == 1) {
                 continue;
             }
             WallItem wallItem = new WallItem();
-            wallItem.setId(currentItem.getLong("id"));
-            wallItem.setFrom_id(currentItem.getInt("from_id"));
-            wallItem.setDate(currentItem.getLong("date"));
-            wallItem.setText(currentItem.getString("text"));
+            initWallItem(wallItem, currentItem);
 
             if (currentItem.has("attachments")) {
                 JSONArray attachments = currentItem.getJSONArray("attachments");
@@ -90,11 +72,7 @@ public class VkWallGetter {
 
                         JSONObject photoJson = jsonAttachment.getJSONObject("photo");
                         Photo photo = new Photo();
-                        photo.setSrc(photoJson.getString("src"));
-                        photo.setSrcBig(photoJson.getString("src_big"));
-                        photo.setSrcSmall(photoJson.getString("src_small"));
-                        photo.setText(photoJson.getString("text"));
-                        photo.setCreated(photoJson.getLong("created"));
+                        initPhoto(photo, photoJson);
                         wallItem.addPhoto(photo);
                     }
                 }
@@ -106,5 +84,31 @@ public class VkWallGetter {
         return wallItems;
     }
 
+    /**
+     * Init given {@link WallItem wallItem} with values gotten from {@link JSONObject object}
+     * @param wallItem
+     * @param object
+     */
+    private void initWallItem(WallItem wallItem, JSONObject object) {
+
+        wallItem.setId(object.getLong("id"));
+        wallItem.setFrom_id(object.getInt("from_id"));
+        wallItem.setDate(object.getLong("date"));
+        wallItem.setText(object.getString("text"));
+    }
+
+    /**
+     * Init given {@link Photo photo} with values gotten from {@link JSONObject object}
+     * @param photo
+     * @param object
+     */
+    private void initPhoto(Photo photo, JSONObject object) {
+
+        photo.setSrc(object.getString("src"));
+        photo.setSrcBig(object.getString("src_big"));
+        photo.setSrcSmall(object.getString("src_small"));
+        photo.setText(object.getString("text"));
+        photo.setCreated(object.getLong("created"));
+    }
 
 }

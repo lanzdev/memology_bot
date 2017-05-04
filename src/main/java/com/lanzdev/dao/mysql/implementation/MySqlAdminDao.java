@@ -4,16 +4,19 @@ import com.lanzdev.dao.entity.AdminDao;
 import com.lanzdev.dao.mysql.AbstractMySqlDao;
 import com.lanzdev.dao.mysql.Query;
 import com.lanzdev.model.entity.Admin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MySqlAdminDao
         extends AbstractMySqlDao<Admin, Integer>
         implements AdminDao {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySqlAdminDao.class);
 
     @Override
     protected String getInsertQuery( ) {
@@ -51,8 +54,8 @@ public class MySqlAdminDao
         try {
             stmt.setString(1, object.getLogin());
             stmt.setString(2, object.getPassword());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -63,8 +66,8 @@ public class MySqlAdminDao
             stmt.setString(1, object.getLogin());
             stmt.setString(2, object.getPassword());
             stmt.setInt(3, object.getId());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -81,8 +84,8 @@ public class MySqlAdminDao
                 admin.setPassword(rs.getString("password"));
                 list.add(admin);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
 
         return list;

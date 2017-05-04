@@ -4,16 +4,19 @@ import com.lanzdev.dao.entity.ChatDao;
 import com.lanzdev.dao.mysql.AbstractMySqlDao;
 import com.lanzdev.dao.mysql.Query;
 import com.lanzdev.model.entity.Chat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MySqlChatDao
         extends AbstractMySqlDao<Chat, Long>
         implements ChatDao {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySqlChatDao.class);
 
     @Override
     protected String getInsertQuery( ) {
@@ -54,8 +57,8 @@ public class MySqlChatDao
             stmt.setString(3, object.getLastName());
             stmt.setBoolean(4, object.isSuspended());
             stmt.setString(5, object.getLastCommand());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -68,8 +71,8 @@ public class MySqlChatDao
             stmt.setBoolean(3, object.isSuspended());
             stmt.setString(4, object.getLastCommand());
             stmt.setLong(5, object.getId());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -88,8 +91,8 @@ public class MySqlChatDao
                 chat.setLastCommand(rs.getString("last_command"));
                 list.add(chat);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
 
         return list;

@@ -19,7 +19,7 @@ public class SubscribeCommand extends BotCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
-        String subscribeText = "Please enter domains separated by commas";
+        String subscribeText = "Please enter publics url";
         SendMessage subscribeMessage = new SendMessage();
         subscribeMessage.setChatId(chat.getId().toString());
         subscribeMessage.setText(subscribeText);

@@ -5,6 +5,8 @@ import com.lanzdev.dao.entity.SubscriptionDao;
 import com.lanzdev.dao.mysql.AbstractMySqlDao;
 import com.lanzdev.dao.mysql.Query;
 import com.lanzdev.model.entity.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +17,8 @@ import java.util.List;
 public class MySqlSubscriptionDao
         extends AbstractMySqlDao<Subscription, Integer>
         implements SubscriptionDao {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySqlSubscriptionDao.class);
 
     @Override
     public List<Subscription> getByChat(Long chatId) {
@@ -27,12 +31,33 @@ public class MySqlSubscriptionDao
             stmt.setLong(1, chatId);
             list = parseResultSet(stmt.executeQuery());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating prepared statement.", e);
         } finally {
             closeConnection();
         }
 
         return list;
+    }
+
+    @Override
+    public Subscription getByChatAndWall(Long chatId, String wallDomain) {
+
+        Subscription subscription = null;
+        connection = ConnectionDB.getConnection();
+
+        try (PreparedStatement stmt = connection.prepareStatement(Query.SELECT_SUBSCRIPTION_BY_CHAT_AND_WALL)) {
+            stmt.setLong(1, chatId);
+            stmt.setString(2, wallDomain);
+            subscription = parseResultSet(stmt.executeQuery()).iterator().next();
+        } catch (SQLException e) {
+            LOGGER.error("Exception while creating prepared statement.", e);
+        } catch (NullPointerException e) {
+            LOGGER.error("Subscription for {} is not found", wallDomain);
+        } finally {
+            closeConnection();
+        }
+
+        return subscription;
     }
 
     @Override
@@ -71,8 +96,8 @@ public class MySqlSubscriptionDao
         try {
             stmt.setLong(1, object.getChatId());
             stmt.setString(2, object.getWallDomain());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -84,8 +109,8 @@ public class MySqlSubscriptionDao
             stmt.setString(2, object.getWallDomain());
             stmt.setLong(3, object.getLastPostId());
             stmt.setInt(4, object.getId());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -103,8 +128,8 @@ public class MySqlSubscriptionDao
                 subscription.setLastPostId(rs.getLong("last_post_id"));
                 list.add(subscription);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
 
         return list;

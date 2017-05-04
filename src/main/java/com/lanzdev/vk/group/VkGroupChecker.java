@@ -1,36 +1,39 @@
 package com.lanzdev.vk.group;
 
+import com.lanzdev.util.Util;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Scanner;
 
+/**
+ * {@link VkGroupChecker VkGroupChecker} checks
+ * either given domain contains in vk as groups domain or doesn't it.
+ */
 public class VkGroupChecker {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VkGroupChecker.class);
 
     public boolean contains(String domain) {
 
         String urlString = "https://api.vk.com/method/groups.getById?group_ids=" + domain;
 
         try {
-            URL url = new URL(urlString);
-            try (Scanner scanner = new Scanner(url.openStream())) {
-                StringBuilder sb = new StringBuilder();
-                while (scanner.hasNextLine()) {
-                    sb.append(scanner.nextLine());
-                }
-                return checkByJson(sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (MalformedURLException e) {
+            String response = Util.getResponse(urlString);
+            return checkJsonResponse(response);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    private boolean checkByJson(String response) {
+    /**
+     * Check response on error object, if it exists then vk doesn't have such domain.
+     * @param response
+     * @return
+     */
+    private boolean checkJsonResponse(String response) {
 
         JSONObject obj = new JSONObject(response);
         if (obj.has("error")) {

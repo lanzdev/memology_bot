@@ -4,12 +4,12 @@ import com.lanzdev.MemologyBot;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
+import com.lanzdev.services.senders.MessageSender;
+import com.lanzdev.services.senders.Sender;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.commands.BotCommand;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 public class UnsubscribeCommand extends BotCommand{
 
@@ -20,16 +20,10 @@ public class UnsubscribeCommand extends BotCommand{
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
-        String unsubscribeMessage = "Enter numbers from list separated by commas";
+        String unsubscribeMessage = "Please print publics ids you want to unsubscribe from separated by commas.";
 
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chat.getId());
-        sendMessage.setText(unsubscribeMessage);
-        try {
-            absSender.sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        Sender sender = new MessageSender();
+        sender.send(absSender, chat.getId().toString(), unsubscribeMessage.toLowerCase());
 
         MemologyBot.COMMANDS.get(Commands.MY_LIST).getCommand()
                 .execute(absSender, user, chat, arguments);

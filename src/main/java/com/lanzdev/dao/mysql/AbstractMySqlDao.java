@@ -4,12 +4,16 @@ import com.lanzdev.dao.ConnectionDB;
 import com.lanzdev.dao.DaoException;
 import com.lanzdev.dao.GenericDao;
 import com.lanzdev.model.Identified;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements GenericDao<T, PK> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMySqlDao.class);
 
     protected Connection connection;
 
@@ -40,7 +44,9 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
             prepareStatementForCreate(stmt, object);
             int count = stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating prepared statement.", e);
+        } finally {
+            closeConnection();
         }
     }
 
@@ -54,17 +60,15 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
             stmt.setObject(1, key);
             ResultSet rs = stmt.executeQuery();
             list = parseResultSet(rs);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            LOGGER.error("Exception while creating prepared statement. %s", e);
+        } catch (NullPointerException e) {
+            LOGGER.error("There is no object with such key: {}", key);
         } finally {
             closeConnection();
         }
 
-        if (list == null || list.size() == 0) {
-            return null;
-        }
-
-        if (list.size() > 1) {
+        if (list == null || list.size() == 0 || list.size() > 1) {
             return null;
         }
 
@@ -81,7 +85,7 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
             ResultSet rs = stmt.executeQuery(getSelectAllQuery());
             list = parseResultSet(rs);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating statement.", e);
         } finally {
             closeConnection();
         }
@@ -101,7 +105,7 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
                 throw new DaoException("On update modify more then 1 record: " + count);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating prepared statement.", e);
         } finally {
             closeConnection();
         }
@@ -119,7 +123,7 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
                 throw new DaoException("On delete modify more then 1 record: " + count);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating prepared statement.", e);
         } finally {
             closeConnection();
         }
@@ -131,7 +135,7 @@ public abstract class AbstractMySqlDao<T extends Identified<PK>, PK> implements 
             try {
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.error("Exception while closing connection.", e);
             }
         }
     }

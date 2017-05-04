@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface SubscriptionManager extends Manager<Subscription, Integer> {
 
-    List<Subscription> getByChat(Long chatId);
+    List<Subscription> getByChatId(Long chatId);
+
+    Subscription getByChatAndWall(Long chatId, String wallDomain);
 }

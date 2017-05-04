@@ -32,8 +32,13 @@ public class MySqlSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public List<Subscription> getByChat(Long chatId) {
+    public List<Subscription> getByChatId(Long chatId) {
         return dao.getByChat(chatId);
+    }
+
+    @Override
+    public Subscription getByChatAndWall(Long chatId, String wallDomain) {
+        return dao.getByChatAndWall(chatId, wallDomain);
     }
 
     @Override

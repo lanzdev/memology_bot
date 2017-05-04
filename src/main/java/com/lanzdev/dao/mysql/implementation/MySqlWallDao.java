@@ -5,6 +5,8 @@ import com.lanzdev.dao.entity.WallDao;
 import com.lanzdev.dao.mysql.AbstractMySqlDao;
 import com.lanzdev.dao.mysql.Query;
 import com.lanzdev.model.entity.Wall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,6 +19,8 @@ public class MySqlWallDao
         extends AbstractMySqlDao<Wall, Integer>
         implements WallDao {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySqlWallDao.class);
+
     @Override
     public List<Wall> getAllApproved( ) {
 
@@ -27,7 +31,7 @@ public class MySqlWallDao
             ResultSet rs = stmt.executeQuery(Query.SELECT_ALL_APPROVED);
             list = parseResultSet(rs);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating statement.", e);
         } finally {
             closeConnection();
         }
@@ -49,7 +53,7 @@ public class MySqlWallDao
                 wall = list.iterator().next();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while creating prepared statement.", e);
         } finally {
             closeConnection();
         }
@@ -93,8 +97,8 @@ public class MySqlWallDao
         try {
             stmt.setString(1, object.getWallDomain());
             stmt.setBoolean(2, object.isApproved());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
     }
 
@@ -106,8 +110,8 @@ public class MySqlWallDao
             stmt.setBoolean(2, object.isApproved());
             stmt.setInt(3, object.getPopularity());
             stmt.setInt(4, object.getId());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
 
     }
@@ -126,8 +130,8 @@ public class MySqlWallDao
                 wall.setPopularity(rs.getInt("popularity"));
                 list.add(wall);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while preparing statement.", e);
         }
 
         return list;
