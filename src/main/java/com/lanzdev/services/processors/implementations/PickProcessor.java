@@ -1,5 +1,7 @@
 package com.lanzdev.services.processors.implementations;
 
+import com.lanzdev.MemologyBot;
+import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
@@ -36,8 +38,15 @@ public class PickProcessor extends AbstractProcessor {
     @Override
     public void process( ) {
 
-        String[] params = message.getText().split(", ");
-        LOGGER.debug("Processing pick command, params: {}", Arrays.toString(params));
+        String[] params = null;
+        if (message.getText().startsWith("/pick")) {
+            String id = message.getText().split("_")[1];
+            params = new String[]{id};
+            LOGGER.debug("Processing pick sub command for id: {}", id);
+        } else {
+            params = message.getText().split(", ");
+            LOGGER.debug("Processing pick command, params: {}", Arrays.toString(params));
+        }
 
         ChatManager chatManager = new MySqlChatManager();
         Chat currentChat = chatManager.getById(message.getChatId());
@@ -49,8 +58,12 @@ public class PickProcessor extends AbstractProcessor {
         List<String> pickedDomains = pickedWalls.stream()
                 .map(Wall::getWallDomain)
                 .collect(Collectors.toList());
-        LOGGER.debug("{} {} #{} unsubscribed: {}", currentChat.getFirstName(), currentChat.getLastName(),
+        LOGGER.debug("{} {} #{} picked: {}", currentChat.getFirstName(), currentChat.getLastName(),
                 currentChat.getId(), pickedDomains.toString());
+
+        MemologyBot.COMMANDS.get(Commands.PICK).getCommand()
+                .execute(bot, message.getFrom(), message.getChat(), null);
+
     }
 
     private void createSubscriptions(Chat currentChat, String[] params, List<Wall> pickedWalls) {
@@ -65,11 +78,19 @@ public class PickProcessor extends AbstractProcessor {
                     try {
                         wallId = Integer.parseInt(item.trim());
                         wall = wallManager.getById(wallId);
-                        subscription = new Subscription();
-                        subscription.setChatId(currentChat.getId());
-                        subscription.setWallDomain(wall.getWallDomain());
-                        subscriptionManager.add(subscription);
-                        pickedWalls.add(wall);
+                        subscription = subscriptionManager.getByChatAndWall(
+                                currentChat.getId(), wall.getWallDomain());
+                        if (subscription != null) {
+                            subscription.setActive(true);
+                            subscriptionManager.update(subscription);
+                            pickedWalls.add(wall);
+                        } else {
+                            subscription = new Subscription();
+                            subscription.setChatId(currentChat.getId());
+                            subscription.setWallDomain(wall.getWallDomain());
+                            subscriptionManager.add(subscription);
+                            pickedWalls.add(wall);
+                        }
                     } catch (Exception e) {
                         LOGGER.error("Cannot create subscription for pick. wall_id = {}.", wallId, e);
                     }

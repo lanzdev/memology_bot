@@ -67,13 +67,13 @@ public class Main {
                     subscriptions.stream()
                             .forEach(item -> {
                                 Wall wall = wallManager.getByDomain(item.getWallDomain());
-                                sendMessages(wall, item, absSender);
                                 if (subscriptionManager.getById(item.getId()) != null) {
+                                    sendMessages(wall, item, absSender);
                                     subscriptionManager.update(item);
                                 }
                             });
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         LOGGER.error("Thread was interrupted.", e);
                     }
@@ -89,15 +89,17 @@ public class Main {
         List<WallItem> newItems = pickNewest(wallItems, subscription.getLastPostId());
         if (newItems.size() != 0) {
             LOGGER.info("{} new posts found on the wall \"{}\".", newItems.size(), wall.getWallDomain());
-            sendMessageHeader(wall, subscription, absSender);
-            newItems.stream()
-                    .forEach(item -> {
-                        sendPostsText(item, subscription, absSender);
-                        item.getPhotos().stream()
-                                .forEach(photo -> {
-                                    sendPostsPhoto(photo, subscription, absSender);
-                                });
-                    });
+            if (subscription.isActive()) {
+                sendMessageHeader(wall, subscription, absSender);
+                newItems.stream()
+                        .forEach(item -> {
+                            sendPostsText(item, subscription, absSender);
+                            item.getPhotos().stream()
+                                    .forEach(photo -> {
+                                        sendPostsPhoto(photo, subscription, absSender);
+                                    });
+                        });
+            }
             subscription.setLastPostId(newItems.get(newItems.size() - 1).getId());
         }
     }
@@ -157,6 +159,7 @@ public class Main {
      * @param wallItems
      * @param lastPostId
      * @return
+     * TODO: create better algorithm for picking new posts
      */
     private List<WallItem> pickNewest(List<WallItem> wallItems, Long lastPostId) {
 

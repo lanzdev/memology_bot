@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,13 +43,14 @@ public class MySqlSubscriptionDao
     @Override
     public Subscription getByChatAndWall(Long chatId, String wallDomain) {
 
-        Subscription subscription = null;
+        List<Subscription> list = new ArrayList<>();
         connection = ConnectionDB.getConnection();
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.SELECT_SUBSCRIPTION_BY_CHAT_AND_WALL)) {
             stmt.setLong(1, chatId);
             stmt.setString(2, wallDomain);
-            subscription = parseResultSet(stmt.executeQuery()).iterator().next();
+            ResultSet rs = stmt.executeQuery();
+            list = parseResultSet(rs);
         } catch (SQLException e) {
             LOGGER.error("Exception while creating prepared statement.", e);
         } catch (NullPointerException e) {
@@ -57,7 +59,11 @@ public class MySqlSubscriptionDao
             closeConnection();
         }
 
-        return subscription;
+        if (list == null || list.size() == 0 || list.size() > 1) {
+            return null;
+        }
+
+        return list.iterator().next();
     }
 
     @Override
@@ -108,7 +114,8 @@ public class MySqlSubscriptionDao
             stmt.setLong(1, object.getChatId());
             stmt.setString(2, object.getWallDomain());
             stmt.setLong(3, object.getLastPostId());
-            stmt.setInt(4, object.getId());
+            stmt.setBoolean(4, object.isActive());
+            stmt.setInt(5, object.getId());
         } catch (Exception e) {
             LOGGER.error("Exception while preparing statement.", e);
         }
@@ -126,6 +133,7 @@ public class MySqlSubscriptionDao
                 subscription.setChatId(rs.getLong("chat_id"));
                 subscription.setWallDomain(rs.getString("wall_domain"));
                 subscription.setLastPostId(rs.getLong("last_post_id"));
+                subscription.setActive(rs.getBoolean("active"));
                 list.add(subscription);
             }
         } catch (Exception e) {

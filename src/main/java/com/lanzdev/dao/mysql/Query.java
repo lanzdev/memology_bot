@@ -31,7 +31,7 @@ public class Query {
     public static final String SELECT_ALL_SUBSCRIPTIONS = "SELECT * FROM subscription";
     public static final String SELECT_SUBSCRIPTION_BY_CHAT = "SELECT * FROM subscription WHERE chat_id = ?";
     public static final String SELECT_SUBSCRIPTION_BY_CHAT_AND_WALL = "SELECT * FROM subscription WHERE chat_id = ? AND wall_domain = ?";
-    public static final String UPDATE_SUBSCRIPTION = "UPDATE subscription SET chat_id = ?, wall_domain = ?, last_post_id = ? WHERE subscription_id = ?";
+    public static final String UPDATE_SUBSCRIPTION = "UPDATE subscription SET chat_id = ?, wall_domain = ?, last_post_id = ?, active = ? WHERE subscription_id = ?";
     public static final String DELETE_SUBSCRIPTION = "DELETE FROM subscription WHERE subscription_id = ?";
 
     /*

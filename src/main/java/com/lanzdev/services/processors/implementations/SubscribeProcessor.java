@@ -66,6 +66,7 @@ public class SubscribeProcessor extends AbstractProcessor {
                     String domain = Regex.getDomain(regex, item, 1);
 
                     if (vkGroupChecker.contains(domain)) {
+
                         Wall wall = wallManager.getByDomain(domain);
                         if (wall == null) {
                             wall = new Wall();
@@ -74,8 +75,8 @@ public class SubscribeProcessor extends AbstractProcessor {
                             wallManager.add(wall);
                         }
 
-                        Subscription subscription = subscriptionManager
-                                .getByChatAndWall(currentChat.getId(), wall.getWallDomain());
+                        Subscription subscription = subscriptionManager.getByChatAndWall(
+                                currentChat.getId(), wall.getWallDomain());
                         if (subscription == null) {
                             subscription = new Subscription();
                             subscription.setChatId(currentChat.getId());
@@ -84,13 +85,20 @@ public class SubscribeProcessor extends AbstractProcessor {
                             wall = wallManager.getByDomain(domain);
                             subscribedWalls.add(wall);
                         } else {
-                            VkGroupGetter groupGetter = new VkGroupGetter();
-                            GroupItem groupItem = groupGetter.getItems(Collections.singletonList(wall))
-                                    .iterator().next();
-                            StringBuilder alreadySubscribedMessage = new StringBuilder();
-                            alreadySubscribedMessage.append("You have already subscribed public: ").append(groupItem.getName());
-                            Sender sender = new MessageSender();
-                            sender.send(bot, currentChat.getId().toString(), alreadySubscribedMessage.toString());
+                            if (subscription.isActive()) {
+                                VkGroupGetter groupGetter = new VkGroupGetter();
+                                GroupItem groupItem = groupGetter.getItems(Collections.singletonList(wall))
+                                        .iterator().next();
+                                String alreadySubscribedString =
+                                        String.format("You have already subscribed public: %s", groupItem.getName());
+                                Sender sender = new MessageSender();
+                                sender.send(bot, currentChat.getId().toString(), alreadySubscribedString);
+                            } else {
+                                subscription.setActive(true);
+                                subscriptionManager.update(subscription);
+                                wall = wallManager.getByDomain(domain);
+                                subscribedWalls.add(wall);
+                            }
                         }
                     }
                 });

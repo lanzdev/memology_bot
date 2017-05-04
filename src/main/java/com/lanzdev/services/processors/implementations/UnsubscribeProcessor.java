@@ -1,5 +1,7 @@
 package com.lanzdev.services.processors.implementations;
 
+import com.lanzdev.MemologyBot;
+import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
@@ -36,14 +38,21 @@ public class UnsubscribeProcessor extends AbstractProcessor {
     @Override
     public void process( ) {
 
-        String[] params = message.getText().split(", ");
-        LOGGER.debug("Processing unsubscribe command, params: {}", Arrays.toString(params));
+        String[] params = null;
+        if (message.getText().startsWith("/unsubscribe")) {
+            String id = message.getText().split("_")[1];
+            params = new String[]{id};
+            LOGGER.debug("Processing unsubscribe sub command for id: {}", id);
+        } else {
+            params = message.getText().split(", ");
+            LOGGER.debug("Processing unsubscribe command, params: {}", Arrays.toString(params));
+        }
 
         ChatManager chatManager = new MySqlChatManager();
         Chat currentChat = chatManager.getById(message.getChatId());
         List<Wall> unsubscribedWalls = new LinkedList<>();
 
-        deleteSubscriptions(currentChat, params, unsubscribedWalls);
+        deactivateSubscriptions(currentChat, params, unsubscribedWalls);
         sendUnsubscribedWalls(currentChat, unsubscribedWalls);
 
         List<String> unsubscribedDomains = unsubscribedWalls.stream()
@@ -51,9 +60,12 @@ public class UnsubscribeProcessor extends AbstractProcessor {
                 .collect(Collectors.toList());
         LOGGER.debug("{} {} #{} unsubscribed: {}", currentChat.getFirstName(), currentChat.getLastName(),
                 currentChat.getId(), unsubscribedDomains.toString());
+
+        MemologyBot.COMMANDS.get(Commands.UNSUBSCRIBE).getCommand()
+                .execute(bot, message.getFrom(), message.getChat(), null);
     }
 
-    private void deleteSubscriptions(Chat currentChat, String[] params, List<Wall> unsubscribedWalls) {
+    private void deactivateSubscriptions(Chat currentChat, String[] params, List<Wall> unsubscribedWalls) {
 
         WallManager wallManager = new MySqlWallManager();
         SubscriptionManager subscriptionManager = new MySqlSubscriptionManager();
@@ -67,8 +79,11 @@ public class UnsubscribeProcessor extends AbstractProcessor {
                         wallId = Integer.parseInt(item);
                         wall = wallManager.getById(wallId);
                         Subscription subscription = getByWallDomain(subscriptions, wall.getWallDomain());
-                        subscriptionManager.delete(subscription);
-                        unsubscribedWalls.add(wall);
+                        if (subscription != null) {
+                            subscription.setActive(false);
+                            subscriptionManager.update(subscription);
+                            unsubscribedWalls.add(wall);
+                        }
                     } catch (NumberFormatException e) {
                         LOGGER.error("Cannot parse {} into Integer", item);
                     } catch (NullPointerException e) {

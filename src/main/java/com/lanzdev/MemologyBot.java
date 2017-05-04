@@ -5,6 +5,7 @@ import com.lanzdev.commands.Commands;
 import com.lanzdev.commands.entity.*;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
+import com.lanzdev.model.entity.Chat;
 import com.lanzdev.services.processors.Processor;
 import com.lanzdev.services.processors.ProcessorFactory;
 import com.lanzdev.services.senders.MessageSender;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.TelegramLongPollingCommandBot;
 
 import java.util.HashMap;
@@ -41,16 +43,32 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
         COMMANDS.entrySet().stream()
                 .forEach((item) -> register(item.getValue().getCommand()));
         LOGGER.info("Fill map COMMANDS with {} items", COMMANDS.size());
+
         registerDefaultAction(((absSender, message) -> {
-            String commandUnknownMessage = String.format(
-                    "The command %s is unknown by this bot. Here comes some help", message.getText());
-            Sender sender = new MessageSender();
-            sender.send(absSender, message.getChatId().toString(), commandUnknownMessage);
-            COMMANDS.get(Commands.HELP)
-                    .getCommand().execute(absSender, message.getFrom(), message.getChat(), new String[] {});
+            if (message.getText() != null
+                    && Constants.subCommands.contains(message.getText().split("_")[0])) {
+                executeSubCommand(absSender, message);
+            } else {
+                String commandUnknownMessage = String.format(
+                        "The command %s is unknown by this bot. Here comes some help", message.getText());
+                Sender sender = new MessageSender();
+                sender.send(absSender, message.getChatId().toString(), commandUnknownMessage);
+                COMMANDS.get(Commands.HELP)
+                        .getCommand().execute(absSender, message.getFrom(), message.getChat(), new String[]{});
+            }
         }));
         LOGGER.debug("Leaving MemologyBot()");
     }
+
+    private void executeSubCommand(AbsSender absSender, Message message) {
+
+        ChatManager chatManager = new MySqlChatManager();
+        Chat currentChat = chatManager.getById(message.getChatId());
+        String lastCommand = currentChat.getLastCommand();
+        Processor processor = ProcessorFactory.getProcessor(message, absSender, lastCommand);
+        processor.process();
+    }
+
 
     @Override
     public void processNonCommandUpdate(Update update) {

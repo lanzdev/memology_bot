@@ -10,7 +10,7 @@ public class MarkdownParser {
     public static String parse(String message) {
 
         message = message.replace("_", "\\_");
-        message = message.replace("*", "\\*");
+//        message = message.replace("*", "\\*");
         return message;
     }
 }

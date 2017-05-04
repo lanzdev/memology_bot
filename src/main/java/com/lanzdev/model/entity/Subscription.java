@@ -8,6 +8,7 @@ public class Subscription implements Identified<Integer> {
     private Long chatId;
     private String wallDomain;
     private Long lastPostId;
+    private Boolean active;
 
     public Subscription( ) {
     }
@@ -44,6 +45,14 @@ public class Subscription implements Identified<Integer> {
         this.lastPostId = lastPostId;
     }
 
+    public Boolean isActive( ) {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     @Override
     public String toString( ) {
         return "Subscription{" +
@@ -51,6 +60,7 @@ public class Subscription implements Identified<Integer> {
                 ", chatId=" + chatId +
                 ", wallDomain='" + wallDomain + '\'' +
                 ", lastPostId=" + lastPostId +
+                ", active=" + active +
                 '}';
     }
 }
