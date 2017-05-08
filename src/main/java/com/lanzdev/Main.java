@@ -1,9 +1,12 @@
 package com.lanzdev;
 
+import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
+import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
 import com.lanzdev.managers.mysql.implementation.MySqlSubscriptionManager;
 import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
+import com.lanzdev.model.entity.Chat;
 import com.lanzdev.model.entity.Subscription;
 import com.lanzdev.model.entity.Wall;
 import com.lanzdev.services.senders.MessageSender;
@@ -25,6 +28,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -49,6 +53,7 @@ public class Main {
 
     /**
      * method which distributes new posts to every user according to their subscriptions
+     *
      * @param absSender
      */
     private void distribution(AbsSender absSender) {
@@ -87,25 +92,42 @@ public class Main {
         VkWallGetter vkWallGetter = new VkWallGetter();
         List<WallItem> wallItems = vkWallGetter.getItems(wall.getWallDomain(), 10, 0);
         List<WallItem> newItems = pickNewest(wallItems, subscription.getLastPostId());
-        if (newItems.size() != 0) {
-            LOGGER.info("{} new posts found on the wall \"{}\".", newItems.size(), wall.getWallDomain());
-            if (subscription.isActive()) {
-                sendMessageHeader(wall, subscription, absSender);
-                newItems.stream()
-                        .forEach(item -> {
-                            sendPostsText(item, subscription, absSender);
-                            item.getPhotos().stream()
-                                    .forEach(photo -> {
-                                        sendPostsPhoto(photo, subscription, absSender);
-                                    });
-                        });
-            }
+        ChatManager chatManager = new MySqlChatManager();
+        Chat currentChat = chatManager.getById(subscription.getChatId());
+
+        if (newItems.size() == 0) {
+            return;
+        } else {
             subscription.setLastPostId(newItems.get(newItems.size() - 1).getId());
         }
+
+        LOGGER.info("{} new posts found on the wall \"{}\".", newItems.size(), wall.getWallDomain());
+
+        if (currentChat.isSuspended()) {
+            LOGGER.info("Distribution for chat {} is suspended.", currentChat.getId());
+            return;
+        }
+
+        if (!subscription.isActive()) {
+            LOGGER.info("Subscription for public {} is not active for chat {}", wall.getWallDomain(), currentChat.getId());
+            return;
+        }
+
+        sendMessageHeader(wall, subscription, absSender);
+        newItems.stream()
+                .forEach(item -> {
+                    sendPostsText(item, subscription, absSender);
+                    item.getPhotos().stream()
+                            .forEach(photo -> {
+                                sendPostsPhoto(photo, subscription, absSender);
+                            });
+                });
+
     }
 
     /**
      * Sends message header before sending actual messages. Contains wall name in bald style
+     *
      * @param wall
      * @param subscription
      * @param absSender
@@ -127,6 +149,7 @@ public class Main {
 
     /**
      * Sends text message to chat
+     *
      * @param item
      * @param subscription
      * @param absSender
@@ -142,6 +165,7 @@ public class Main {
 
     /**
      * Sends photo message to chat
+     *
      * @param photo
      * @param subscription
      * @param absSender
@@ -156,22 +180,18 @@ public class Main {
 
     /**
      * Picks newest wall items from list {@param wallItems}
+     *
      * @param wallItems
      * @param lastPostId
-     * @return
-     * TODO: create better algorithm for picking new posts
+     * @return TODO: create better algorithm for picking new posts
      */
     private List<WallItem> pickNewest(List<WallItem> wallItems, Long lastPostId) {
 
         List<WallItem> list = new ArrayList<>();
 
-        int last = 0;
-        for (int i = 0; i < wallItems.size(); i++) {
-            if (wallItems.get(i).getId().equals(lastPostId)) {
-                last = i;
-                break;
-            }
-        }
+        int last = IntStream.range(0, wallItems.size())
+                .filter(i -> wallItems.get(i).getId().equals(lastPostId))
+                .findFirst().orElse(0);
 
         if (lastPostId != 0) {
             for (int i = last + 1; i < wallItems.size(); i++) {

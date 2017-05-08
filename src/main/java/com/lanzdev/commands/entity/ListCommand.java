@@ -21,11 +21,26 @@ import java.util.List;
 public class ListCommand extends BotCommand {
 
     public ListCommand() {
-        super("list", "See list of pre picked publics");
+        super("list", "See list of pre picked walls");
     }
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+
+        String msgHeader = "*List*";
+        StringBuilder msgBody = new StringBuilder();
+        msgBody.append("List of recommended walls:\n");
+        appendRecommendedWalls(msgBody);
+
+        String parsedMsgBody = MarkdownParser.parse(msgBody.toString());
+        Sender sender = new MessageSender();
+        sender.send(absSender, chat.getId().toString(), msgHeader);
+        sender.send(absSender, chat.getId().toString(), parsedMsgBody);
+
+        updateChatLastCommand(chat.getId());
+    }
+
+    private void appendRecommendedWalls(StringBuilder builder) {
 
         WallManager wallManager = new MySqlWallManager();
         List<Wall> walls = wallManager.getAllApproved();
@@ -33,18 +48,16 @@ public class ListCommand extends BotCommand {
         VkGroupGetter groupGetter = new VkGroupGetter();
         List<GroupItem> groupItems = groupGetter.getItems(walls);
 
-        StringBuilder listMessageBuilder = new StringBuilder();
         groupItems.stream()
-                .forEach(group -> listMessageBuilder
+                .forEach(group -> builder
                         .append(String.format("%-5d", group.getId()))
-//                        .append(": ").append(group.getScreenName())
                         .append("-  ").append(group.getName()).append("\n"));
-        String message = MarkdownParser.parse(listMessageBuilder.toString());
-        Sender sender = new MessageSender();
-        sender.send(absSender, chat.getId().toString(), message);
+    }
+
+    private void updateChatLastCommand(Long chatId) {
 
         ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chat.getId());
+        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
         currentChat.setLastCommand(Commands.LIST);
         chatManager.update(currentChat);
     }

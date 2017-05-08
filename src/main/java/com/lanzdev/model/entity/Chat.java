@@ -45,6 +45,14 @@ public class Chat implements Identified<Long> {
         this.suspended = suspended;
     }
 
+    public void suspend() {
+        this.suspended = true;
+    }
+
+    public void proceed() {
+        this.suspended = false;
+    }
+
     public String getLastCommand( ) {
         return lastCommand;
     }

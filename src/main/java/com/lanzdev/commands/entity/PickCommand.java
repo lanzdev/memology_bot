@@ -11,6 +11,7 @@ import com.lanzdev.model.entity.Subscription;
 import com.lanzdev.model.entity.Wall;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
+import com.lanzdev.util.Util;
 import com.lanzdev.vk.group.GroupItem;
 import com.lanzdev.vk.group.VkGroupGetter;
 import org.telegram.telegrambots.api.objects.Chat;
@@ -30,51 +31,66 @@ public class PickCommand extends BotCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
-        StringBuilder pickHeaderBuilder = new StringBuilder();
-        pickHeaderBuilder.append("Please click on group from list if you want to pick it.").append("\n");
-        pickHeaderBuilder.append("Or you may print ids of groups you want to pick separated by commas.");
+        String msgHeader = "*Pick*";
+        StringBuilder msgBody = new StringBuilder();
+        StringBuilder msgPause = new StringBuilder();
+        appendRecommendedUnsubscribedWalls(msgBody, chat.getId());
+        Util.appendPauseChecking(msgPause, chat.getId());
+
+        Sender sender = new MessageSender();
+        sender.send(absSender, chat.getId().toString(), msgHeader);
+        if (msgPause.length() != 0) {
+            sender.send(absSender, chat.getId().toString(), msgPause.toString());
+        }
+        sender.send(absSender, chat.getId().toString(), msgBody.toString());
+
+        updateChatLastCommand(chat.getId());
+    }
+
+
+    private void appendRecommendedUnsubscribedWalls(StringBuilder builder, Long chatId) {
 
         SubscriptionManager subscriptionManager = new MySqlSubscriptionManager();
         WallManager wallManager = new MySqlWallManager();
         List<Wall> walls = wallManager.getAllApproved();
-        List<Subscription> subscriptions = subscriptionManager.getByChatId(chat.getId());
-        List<Wall> notSubscribedWalls = new ArrayList<>();
+        List<Subscription> subscriptions = subscriptionManager.getByChatId(chatId);
+        List<Wall> notSubscribedWalls = new ArrayList<>(walls);
 
         // TODO: change on lambda
         for (int i = 0; i < walls.size(); i++) {
             for (int j = 0; j < subscriptions.size(); j++) {
                 if (subscriptions.get(j).getWallDomain().equals(walls.get(i).getWallDomain())
                         && subscriptions.get(j).isActive()) {
-                    break;
-                } else if (j == subscriptions.size() - 1) {
-                    notSubscribedWalls.add(walls.get(i));
+                    notSubscribedWalls.remove(walls.get(i));
                 }
             }
         }
 
         VkGroupGetter groupGetter = new VkGroupGetter();
         List<GroupItem> groupItems = groupGetter.getItems(notSubscribedWalls);
-        StringBuilder pickMessageBuilder = new StringBuilder();
         groupItems.stream()
                 .forEach(group -> {
                     String command = String.format("/pick_%-3d", group.getId());
-                    pickMessageBuilder.append(
+                    builder.append(
                             String.format("[%s -  %s](%s)", command, group.getName(), command))
                             .append("\n");
+
                 });
 
-        Sender sender = new MessageSender();
         if (groupItems.size() != 0) {
-            sender.send(absSender, chat.getId().toString(), pickHeaderBuilder.toString());
-            sender.send(absSender, chat.getId().toString(), pickMessageBuilder.toString());
+            builder.insert(0, "\n")
+                    .insert(0, "Or you may print ids of walls you want to pick separated by commas.")
+                    .insert(0, "\n");
+            builder.insert(0, "Please click on walls from list if you want to pick it.");
         } else {
-            String noWallsForPick = "You have already picked all available walls";
-            sender.send(absSender, chat.getId().toString(), noWallsForPick);
+            builder.append("You have already picked all recommended walls");
         }
+    }
 
+    private void updateChatLastCommand(Long chatId) {
 
         ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chat.getId());
+        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
         currentChat.setLastCommand(Commands.PICK);
         chatManager.update(currentChat);
     }

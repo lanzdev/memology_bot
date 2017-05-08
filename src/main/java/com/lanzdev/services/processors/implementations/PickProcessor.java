@@ -44,7 +44,7 @@ public class PickProcessor extends AbstractProcessor {
             params = new String[]{id};
             LOGGER.debug("Processing pick sub command for id: {}", id);
         } else {
-            params = message.getText().split(", ");
+            params = message.getText().split(",");
             LOGGER.debug("Processing pick command, params: {}", Arrays.toString(params));
         }
 

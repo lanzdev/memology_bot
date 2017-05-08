@@ -44,7 +44,7 @@ public class UnsubscribeProcessor extends AbstractProcessor {
             params = new String[]{id};
             LOGGER.debug("Processing unsubscribe sub command for id: {}", id);
         } else {
-            params = message.getText().split(", ");
+            params = message.getText().split(",");
             LOGGER.debug("Processing unsubscribe command, params: {}", Arrays.toString(params));
         }
 
@@ -72,11 +72,10 @@ public class UnsubscribeProcessor extends AbstractProcessor {
         List<Subscription> subscriptions = subscriptionManager.getByChatId(currentChat.getId());
         Arrays.stream(params)
                 .forEach(item -> {
-                    item = item.trim();
                     Integer wallId = null;
                     Wall wall = null;
                     try {
-                        wallId = Integer.parseInt(item);
+                        wallId = Integer.parseInt(item.trim());
                         wall = wallManager.getById(wallId);
                         Subscription subscription = getByWallDomain(subscriptions, wall.getWallDomain());
                         if (subscription != null) {

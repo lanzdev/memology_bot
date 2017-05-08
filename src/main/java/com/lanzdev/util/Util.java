@@ -1,7 +1,9 @@
 package com.lanzdev.util;
 
+import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
+import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
 import com.lanzdev.managers.mysql.implementation.MySqlSubscriptionManager;
 import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
 import com.lanzdev.model.entity.Subscription;
@@ -52,5 +54,15 @@ public class Util {
         VkGroupGetter groupGetter = new VkGroupGetter();
 
         return groupGetter.getItems(walls);
+    }
+
+    public static void appendPauseChecking(StringBuilder builder, Long chatId) {
+
+        ChatManager chatManager = new MySqlChatManager();
+        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
+
+        if (currentChat.isSuspended()) {
+            builder.append("You have suspended distribution, if you want to proceed it print /resume\n");
+        }
     }
 }

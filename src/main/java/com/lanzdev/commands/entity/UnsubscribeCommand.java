@@ -17,37 +17,54 @@ import java.util.List;
 public class UnsubscribeCommand extends BotCommand {
 
     public UnsubscribeCommand( ) {
-        super("unsubscribe", "Unsubscribe form public distribution");
+        super("unsubscribe", "Unsubscribe form wall distribution");
     }
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
-        StringBuilder unsubscribeHeaderBuilder = new StringBuilder();
-        unsubscribeHeaderBuilder.append("Please click on group from list if you want to unsubscribe from it.").append("\n");
-        unsubscribeHeaderBuilder.append("Or you may print ids of desirable groups separated by commas.");
+        String msgHeader = "*Unsubscribe*";
+        StringBuilder msgBody = new StringBuilder();
+        StringBuilder msgPause = new StringBuilder();
+        appendSubscribedWalls(msgBody, chat.getId());
+        Util.appendPauseChecking(msgPause, chat.getId());
 
-        List<GroupItem> groupItems = Util.getSubscribedWalls(chat.getId());
+        Sender sender = new MessageSender();
+        sender.send(absSender, chat.getId().toString(), msgHeader);
+        if (msgPause.length() != 0) {
+            sender.send(absSender, chat.getId().toString(), msgPause.toString());
+        }
+        sender.send(absSender, chat.getId().toString(), msgBody.toString());
 
-        StringBuilder unsubscribeMessageBuilder = new StringBuilder();
+        updateChatLastCommand(chat.getId());
+    }
+
+    private void appendSubscribedWalls(StringBuilder builder, Long chatId) {
+
+        List<GroupItem> groupItems = Util.getSubscribedWalls(chatId);
+
         groupItems.forEach(group -> {
             String command = String.format("/unsubscribe_%-3d", group.getId());
-            unsubscribeMessageBuilder.append(
+            builder.append(
                     String.format("[%s -  %s](%s)", command, group.getName(), command))
                     .append("\n");
         });
 
-        Sender sender = new MessageSender();
         if (groupItems.size() != 0) {
-            sender.send(absSender, chat.getId().toString(), unsubscribeHeaderBuilder.toString());
-            sender.send(absSender, chat.getId().toString(), unsubscribeMessageBuilder.toString());
+            builder.insert(0, "\n")
+                    .insert(0, "Or you may print ids of desirable walls separated by commas.")
+                    .insert(0, "\n");
+            builder.insert(0, "Please click on wall from list if you want to unsubscribe from it.");
         } else {
-            String noWallsForUnsubscribe = "You have already unsubscribed all available walls";
-            sender.send(absSender, chat.getId().toString(), noWallsForUnsubscribe);
+            builder.append("You have already unsubscribed all available walls.");
         }
 
+    }
+
+    private void updateChatLastCommand(Long chatId) {
+
         ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chat.getId());
+        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
         currentChat.setLastCommand(Commands.UNSUBSCRIBE);
         chatManager.update(currentChat);
     }
