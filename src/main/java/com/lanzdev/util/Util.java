@@ -1,13 +1,14 @@
 package com.lanzdev.util;
 
+import com.lanzdev.domain.Chat;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlSubscriptionManager;
-import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
-import com.lanzdev.model.entity.Subscription;
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.managers.mysql.impl.MySqlChatManager;
+import com.lanzdev.managers.mysql.impl.MySqlSubscriptionManager;
+import com.lanzdev.managers.mysql.impl.MySqlWallManager;
+import com.lanzdev.domain.Subscription;
+import com.lanzdev.domain.Wall;
 import com.lanzdev.vk.group.GroupItem;
 import com.lanzdev.vk.group.VkGroupGetter;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class Util {
     public static void appendPauseChecking(StringBuilder builder, Long chatId) {
 
         ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
+        Chat currentChat = chatManager.getById(chatId);
 
         if (currentChat.isSuspended()) {
             builder.append("You have suspended distribution, if you want to proceed it print /resume\n");

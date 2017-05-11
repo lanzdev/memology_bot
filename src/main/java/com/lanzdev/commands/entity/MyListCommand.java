@@ -1,24 +1,22 @@
 package com.lanzdev.commands.entity;
 
+import com.lanzdev.commands.AbstractCommand;
 import com.lanzdev.commands.Commands;
-import com.lanzdev.managers.entity.ChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
-import com.lanzdev.util.MarkdownParser;
+import com.lanzdev.util.Parser;
 import com.lanzdev.util.Util;
 import com.lanzdev.vk.group.GroupItem;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.bots.commands.BotCommand;
 
 import java.util.List;
 
-public class MyListCommand extends BotCommand {
+public class MyListCommand extends AbstractCommand {
 
     public MyListCommand( ) {
-        super("my_list", "See list of walls already subscribed by you");
+        super(Commands.MY_LIST, "See list of walls already subscribed by you");
     }
 
     @Override
@@ -29,12 +27,12 @@ public class MyListCommand extends BotCommand {
         msgBody.append("List of subscribed walls:\n");
         appendSubscribedWalls(msgBody, chat.getId());
 
-        String parsedMsgBody = MarkdownParser.parse(msgBody.toString());
+        String parsedMsgBody = Parser.parseMarkdown(msgBody.toString());
         Sender sender = new MessageSender();
         sender.send(absSender, chat.getId().toString(), msgHeader);
         sender.send(absSender, chat.getId().toString(), parsedMsgBody);
 
-        updateChatLastCommand(chat.getId());
+        updateChatLastCommand(chat.getId(), Commands.MY_LIST);
     }
 
     private void appendSubscribedWalls(StringBuilder builder, Long chatId) {
@@ -47,13 +45,5 @@ public class MyListCommand extends BotCommand {
         } else {
             builder.append("You haven't subscribed any wall. Your list is empty.");
         }
-    }
-
-    private void updateChatLastCommand(Long chatId) {
-
-        ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
-        currentChat.setLastCommand(Commands.MY_LIST);
-        chatManager.update(currentChat);
     }
 }

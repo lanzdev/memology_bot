@@ -1,7 +1,7 @@
 package com.lanzdev.managers.entity;
 
 import com.lanzdev.managers.Manager;
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.domain.Wall;
 
 import java.util.List;
 

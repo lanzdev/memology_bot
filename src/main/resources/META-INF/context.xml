@@ -1,0 +1,19 @@
+<Context>
+
+    <Resource name="jdbc/memology_test"
+              auth="Container"
+              type="javax.sql.DataSource"
+              testWhileIdle="true"
+              testOnBorrow="true"
+              testOnReturn="false"
+              validationQuery="SELECT 1"
+              validationInterval="30000"
+              timeBetweenEvictionRunsMillis="30000"
+              maxActive="100"
+              maxIdle="30"
+              maxWait="10000"
+              username="root"
+              password=""
+              driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/memology_test"/>
+</Context>

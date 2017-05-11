@@ -1,14 +1,13 @@
 package com.lanzdev.commands.entity;
 
+import com.lanzdev.commands.AbstractCommand;
 import com.lanzdev.commands.Commands;
-import com.lanzdev.managers.entity.ChatManager;
+import com.lanzdev.domain.Subscription;
+import com.lanzdev.domain.Wall;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlSubscriptionManager;
-import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
-import com.lanzdev.model.entity.Subscription;
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.managers.mysql.impl.MySqlSubscriptionManager;
+import com.lanzdev.managers.mysql.impl.MySqlWallManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Util;
@@ -17,15 +16,14 @@ import com.lanzdev.vk.group.VkGroupGetter;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.bots.commands.BotCommand;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PickCommand extends BotCommand {
+public class PickCommand extends AbstractCommand {
 
     public PickCommand( ) {
-        super("pick", "Pick public from pre picked list");
+        super(Commands.PICK, "Pick public from pre picked list");
     }
 
     @Override
@@ -44,7 +42,7 @@ public class PickCommand extends BotCommand {
         }
         sender.send(absSender, chat.getId().toString(), msgBody.toString());
 
-        updateChatLastCommand(chat.getId());
+        updateChatLastCommand(chat.getId(), Commands.PICK);
     }
 
 
@@ -85,13 +83,5 @@ public class PickCommand extends BotCommand {
         } else {
             builder.append("You have already picked all recommended walls");
         }
-    }
-
-    private void updateChatLastCommand(Long chatId) {
-
-        ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
-        currentChat.setLastCommand(Commands.PICK);
-        chatManager.update(currentChat);
     }
 }

@@ -1,27 +1,25 @@
 package com.lanzdev.commands.entity;
 
+import com.lanzdev.commands.AbstractCommand;
 import com.lanzdev.commands.Commands;
-import com.lanzdev.managers.entity.ChatManager;
+import com.lanzdev.domain.Wall;
 import com.lanzdev.managers.entity.WallManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.managers.mysql.impl.MySqlWallManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
-import com.lanzdev.util.MarkdownParser;
+import com.lanzdev.util.Parser;
 import com.lanzdev.vk.group.GroupItem;
 import com.lanzdev.vk.group.VkGroupGetter;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.bots.commands.BotCommand;
 
 import java.util.List;
 
-public class ListCommand extends BotCommand {
+public class ListCommand extends AbstractCommand {
 
     public ListCommand() {
-        super("list", "See list of pre picked walls");
+        super(Commands.LIST, "See list of pre picked walls");
     }
 
     @Override
@@ -32,12 +30,12 @@ public class ListCommand extends BotCommand {
         msgBody.append("List of recommended walls:\n");
         appendRecommendedWalls(msgBody);
 
-        String parsedMsgBody = MarkdownParser.parse(msgBody.toString());
+        String parsedMsgBody = Parser.parseMarkdown(msgBody.toString());
         Sender sender = new MessageSender();
         sender.send(absSender, chat.getId().toString(), msgHeader);
         sender.send(absSender, chat.getId().toString(), parsedMsgBody);
 
-        updateChatLastCommand(chat.getId());
+        updateChatLastCommand(chat.getId(), Commands.LIST);
     }
 
     private void appendRecommendedWalls(StringBuilder builder) {
@@ -52,13 +50,5 @@ public class ListCommand extends BotCommand {
                 .forEach(group -> builder
                         .append(String.format("%-5d", group.getId()))
                         .append("-  ").append(group.getName()).append("\n"));
-    }
-
-    private void updateChatLastCommand(Long chatId) {
-
-        ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
-        currentChat.setLastCommand(Commands.LIST);
-        chatManager.update(currentChat);
     }
 }

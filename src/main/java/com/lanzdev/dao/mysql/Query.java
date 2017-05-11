@@ -3,23 +3,13 @@ package com.lanzdev.dao.mysql;
 public class Query {
 
     /*
-     * Admin queries
-     */
-    public static final String INSERT_ADMIN = "INSERT INTO admin (login, password) VALUES (?, ?)";
-    public static final String SELECT_LAST_ADMIN = "SELECT * FROM admin WHERE admin_id = last_insert_id()";
-    public static final String SELECT_ADMIN_BY_ID = "SELECT * FROM admin WHERE admin_id = ?";
-    public static final String SELECT_ALL_ADMINS = "SELECT * FROM admin";
-    public static final String UPDATE_ADMIN = "UPDATE admin SET login=?, password=? WHERE admin_id = ?";
-    public static final String DELETE_ADMIN = "DELETE FROM admin WHERE admin_id = ?";
-
-    /*
      * Chat queries
      */
     public static final String INSERT_CHAT = "INSERT INTO chat (chat_id, first_name, last_name, suspended, last_command) VALUES (?, ?, ?, ?, ?)";
     public static final String SELECT_LAST_CHAT = "SELECT * FROM chat WHERE chat_id = last_insert_id()";
     public static final String SELECT_CHAT_BY_ID = "SELECT * FROM chat WHERE chat_id = ?";
     public static final String SELECT_ALL_CHATS = "SELECT * FROM chat";
-    public static final String UPDATE_CHAT = "UPDATE chat SET first_name = ?, last_name = ?, suspended = ?, last_command = ? WHERE chat_id = ?";
+    public static final String UPDATE_CHAT = "UPDATE chat SET first_name = ?, last_name = ?, suspended = ?, last_command = ?, admin = ? WHERE chat_id = ?";
     public static final String DELETE_CHAT = "DELETE FROM chat WHERE chat_id = ?";
 
     /*

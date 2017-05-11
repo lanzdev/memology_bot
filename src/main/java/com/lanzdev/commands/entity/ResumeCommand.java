@@ -1,19 +1,19 @@
 package com.lanzdev.commands.entity;
 
+import com.lanzdev.commands.AbstractCommand;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
+import com.lanzdev.managers.mysql.impl.MySqlChatManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.bots.commands.BotCommand;
 
-public class ResumeCommand extends BotCommand {
+public class ResumeCommand extends AbstractCommand {
 
     public ResumeCommand() {
-        super("resume", "Proceed distribution from publics");
+        super(Commands.RESUME, "Proceed distribution from publics");
     }
 
     @Override
@@ -27,13 +27,13 @@ public class ResumeCommand extends BotCommand {
         sender.send(absSender, chat.getId().toString(), msgHeader);
         sender.send(absSender, chat.getId().toString(), msgBody.toString());
 
-        updateChatLastCommand(chat.getId());
+        updateChatLastCommand(chat.getId(), Commands.RESUME);
     }
 
     private void appendMessage(StringBuilder builder, Long chatId) {
 
         ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
+        com.lanzdev.domain.Chat currentChat = chatManager.getById(chatId);
 
         if (currentChat.isSuspended()) {
             currentChat.proceed();
@@ -43,13 +43,5 @@ public class ResumeCommand extends BotCommand {
             builder.append("You have already proceeded distribution.\n");
         }
         builder.append("If you want to suspend distribution print /pause");
-    }
-
-    private void updateChatLastCommand(Long chatId) {
-
-        ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
-        currentChat.setLastCommand(Commands.RESUME);
-        chatManager.update(currentChat);
     }
 }

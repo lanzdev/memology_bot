@@ -1,6 +1,6 @@
 package com.lanzdev.vk.group;
 
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.domain.Wall;
 import com.lanzdev.util.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;

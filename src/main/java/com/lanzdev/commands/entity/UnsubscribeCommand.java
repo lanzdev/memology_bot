@@ -1,8 +1,7 @@
 package com.lanzdev.commands.entity;
 
+import com.lanzdev.commands.AbstractCommand;
 import com.lanzdev.commands.Commands;
-import com.lanzdev.managers.entity.ChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Util;
@@ -10,14 +9,13 @@ import com.lanzdev.vk.group.GroupItem;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
-import org.telegram.telegrambots.bots.commands.BotCommand;
 
 import java.util.List;
 
-public class UnsubscribeCommand extends BotCommand {
+public class UnsubscribeCommand extends AbstractCommand {
 
     public UnsubscribeCommand( ) {
-        super("unsubscribe", "Unsubscribe form wall distribution");
+        super(Commands.UNSUBSCRIBE, "Unsubscribe form wall distribution");
     }
 
     @Override
@@ -36,7 +34,7 @@ public class UnsubscribeCommand extends BotCommand {
         }
         sender.send(absSender, chat.getId().toString(), msgBody.toString());
 
-        updateChatLastCommand(chat.getId());
+        updateChatLastCommand(chat.getId(), Commands.UNSUBSCRIBE);
     }
 
     private void appendSubscribedWalls(StringBuilder builder, Long chatId) {
@@ -59,13 +57,5 @@ public class UnsubscribeCommand extends BotCommand {
             builder.append("You have already unsubscribed all available walls.");
         }
 
-    }
-
-    private void updateChatLastCommand(Long chatId) {
-
-        ChatManager chatManager = new MySqlChatManager();
-        com.lanzdev.model.entity.Chat currentChat = chatManager.getById(chatId);
-        currentChat.setLastCommand(Commands.UNSUBSCRIBE);
-        chatManager.update(currentChat);
     }
 }

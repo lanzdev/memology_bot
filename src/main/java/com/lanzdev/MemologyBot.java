@@ -4,8 +4,8 @@ import com.lanzdev.commands.CommandContainer;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.commands.entity.*;
 import com.lanzdev.managers.entity.ChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
-import com.lanzdev.model.entity.Chat;
+import com.lanzdev.managers.mysql.impl.MySqlChatManager;
+import com.lanzdev.domain.Chat;
 import com.lanzdev.services.processors.Processor;
 import com.lanzdev.services.processors.ProcessorFactory;
 import com.lanzdev.services.senders.MessageSender;
@@ -28,9 +28,9 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
     public MemologyBot( ) {
 
         LOGGER.debug("Enter MemologyBot().");
-        COMMANDS.put(Commands.ADD_PRE_PICKED, new CommandContainer(new AddPrePickedCommand(), true));
-        COMMANDS.put(Commands.ADMIN, new CommandContainer(new AdminCommand(), true));
-        COMMANDS.put(Commands.DELETE_PRE_PICKED, new CommandContainer(new DeletePrePickedCommand(), true));
+        COMMANDS.put(Commands.ADD_RECOMMENDED, new CommandContainer(new AddRecommendedCommand(), true));
+        COMMANDS.put(Commands.CREATE_NOTIFICATION, new CommandContainer(new CreateNotificationCommand(), true));
+        COMMANDS.put(Commands.DELETE_RECOMMENDED, new CommandContainer(new DeleteRecommendedCommand(), true));
         COMMANDS.put(Commands.HELP, new CommandContainer(new HelpCommand(this), false));
         COMMANDS.put(Commands.LIST, new CommandContainer(new ListCommand(), false));
         COMMANDS.put(Commands.MY_LIST, new CommandContainer(new MyListCommand(), false));
@@ -77,7 +77,7 @@ public class MemologyBot extends TelegramLongPollingCommandBot {
         if (update.hasMessage()) {
             Message message = update.getMessage();
             ChatManager chatManager = new MySqlChatManager();
-            com.lanzdev.model.entity.Chat currentChat = chatManager.getById(message.getChatId());
+            Chat currentChat = chatManager.getById(message.getChatId());
             String lastCommand = currentChat.getLastCommand();
             LOGGER.info("update has message, message: \"{}\". Process it.", message.getText());
 

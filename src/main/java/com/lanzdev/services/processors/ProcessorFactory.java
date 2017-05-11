@@ -1,7 +1,7 @@
 package com.lanzdev.services.processors;
 
 import com.lanzdev.commands.Commands;
-import com.lanzdev.services.processors.implementations.*;
+import com.lanzdev.services.processors.impl.*;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.bots.AbsSender;
 
@@ -10,12 +10,12 @@ public class ProcessorFactory {
     public static Processor getProcessor(Message message, AbsSender absSender, String lastCommand) {
 
         switch (lastCommand) {
-            case Commands.ADD_PRE_PICKED:
-                return new AddPrePickProcessor(message, absSender);
-            case Commands.ADMIN:
-                return new AdminProcessor(message, absSender);
-            case Commands.DELETE_PRE_PICKED:
-                return new DeletePrePickedProcessor(message, absSender);
+            case Commands.ADD_RECOMMENDED:
+                return new AddRecommendedProcessor(message, absSender);
+            case Commands.CREATE_NOTIFICATION:
+                return new CreateNotificationProcessor(message, absSender);
+            case Commands.DELETE_RECOMMENDED:
+                return new DeleteRecommendedProcessor(message, absSender);
             case Commands.HELP:
                 return new HelpProcessor(message, absSender);
             case Commands.LIST:

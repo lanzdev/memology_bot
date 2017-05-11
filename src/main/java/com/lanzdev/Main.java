@@ -3,16 +3,16 @@ package com.lanzdev;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
 import com.lanzdev.managers.entity.WallManager;
-import com.lanzdev.managers.mysql.implementation.MySqlChatManager;
-import com.lanzdev.managers.mysql.implementation.MySqlSubscriptionManager;
-import com.lanzdev.managers.mysql.implementation.MySqlWallManager;
-import com.lanzdev.model.entity.Chat;
-import com.lanzdev.model.entity.Subscription;
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.managers.mysql.impl.MySqlChatManager;
+import com.lanzdev.managers.mysql.impl.MySqlSubscriptionManager;
+import com.lanzdev.managers.mysql.impl.MySqlWallManager;
+import com.lanzdev.domain.Chat;
+import com.lanzdev.domain.Subscription;
+import com.lanzdev.domain.Wall;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.PhotoSender;
 import com.lanzdev.services.senders.Sender;
-import com.lanzdev.util.MarkdownParser;
+import com.lanzdev.util.Parser;
 import com.lanzdev.vk.group.GroupItem;
 import com.lanzdev.vk.group.VkGroupGetter;
 import com.lanzdev.vk.wall.Photo;
@@ -135,16 +135,17 @@ public class Main {
     private void sendMessageHeader(Wall wall, Subscription subscription, AbsSender absSender) {
 
         GroupItem groupItem = new VkGroupGetter().getItems(Collections.singletonList(wall)).iterator().next();
-        StringBuilder sendPublicBuilder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         String groupName = groupItem.getName();
-        groupName = MarkdownParser.parse(groupName);
-        sendPublicBuilder.append("*").append(groupName).append("*");
+        groupName = Parser.parseHashtag(groupName);
+        groupName = Parser.parseMarkdown(groupName);
+        builder.append("#").append(groupName);
 
         LOGGER.info("Send message header \"{}\" to chat {}",
-                sendPublicBuilder.toString(), subscription.getChatId().toString());
+                builder.toString(), subscription.getChatId().toString());
 
         Sender sender = new MessageSender();
-        sender.send(absSender, subscription.getChatId().toString(), sendPublicBuilder.toString());
+        sender.send(absSender, subscription.getChatId().toString(), builder.toString());
     }
 
     /**
@@ -158,7 +159,7 @@ public class Main {
 
         Sender sender = new MessageSender();
         if (item.getText() != null && !item.getText().isEmpty()) {
-            String message = MarkdownParser.parse(item.getText());
+            String message = Parser.parseMarkdown(item.getText());
             sender.send(absSender, subscription.getChatId().toString(), message);
         }
     }

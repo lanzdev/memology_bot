@@ -5,6 +5,6 @@ import java.util.List;
 
 public class Constants {
 
-    public static List<String> subCommands = Arrays.asList("/pick", "/unsubscribe");
+    static final List<String> subCommands = Arrays.asList("/pick", "/unsubscribe");
 
 }

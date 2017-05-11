@@ -1,7 +1,7 @@
 package com.lanzdev.dao.entity;
 
 import com.lanzdev.dao.GenericDao;
-import com.lanzdev.model.entity.Wall;
+import com.lanzdev.domain.Wall;
 
 import java.util.List;
 
