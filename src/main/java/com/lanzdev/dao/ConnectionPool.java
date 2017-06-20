@@ -1,6 +1,6 @@
 package com.lanzdev.dao;
 
-import com.lanzdev.BuildVars;
+import com.lanzdev.Vars;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +19,10 @@ public class ConnectionPool {
     private ConnectionPool() throws PropertyVetoException {
 
         cpds = new ComboPooledDataSource();
-        cpds.setDriverClass(BuildVars.driverDB);
-        cpds.setJdbcUrl(BuildVars.linkDB);
-        cpds.setUser(BuildVars.userDB);
-        cpds.setPassword(BuildVars.passwordDB);
+        cpds.setDriverClass(Vars.driverDB);
+        cpds.setJdbcUrl(Vars.linkDB);
+        cpds.setUser(Vars.userDB);
+        cpds.setPassword(Vars.passwordDB);
 
         cpds.setMinPoolSize(3);
         cpds.setMaxPoolSize(20);

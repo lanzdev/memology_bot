@@ -1,5 +1,6 @@
 package com.lanzdev.vk.group;
 
+import com.lanzdev.Vars;
 import com.lanzdev.domain.Wall;
 import com.lanzdev.util.Util;
 import org.json.JSONArray;
@@ -25,8 +26,7 @@ public class VkGroupGetter {
     public List<GroupItem> getItems(List<Wall> walls) {
 
         wallList = walls;
-        StringBuilder url = new StringBuilder(
-                "https://api.vk.com/method/groups.getById?group_ids=");
+        StringBuilder url = new StringBuilder(Vars.VK_GROUP_GET);
         walls.forEach((wall) -> url.append(wall.getWallDomain()).append(","));
         url.deleteCharAt(url.length() - 1);
         return getItemsFromUrl(url.toString());

@@ -1,5 +1,6 @@
 package com.lanzdev.vk.wall;
 
+import com.lanzdev.Vars;
 import com.lanzdev.util.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,7 +22,7 @@ public class VkWallGetter {
 
     public List<WallItem> getItems(String domain, Integer count, Integer offset) {
 
-        String url = "https://api.vk.com/method/wall.get?domain="
+        String url = Vars.VK_WALL_GET
                 + domain + "&count=" + count + "&offset=" + offset;
         List<WallItem> list = getItemsByUrl(url);
         Collections.reverse(list);

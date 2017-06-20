@@ -1,5 +1,6 @@
 package com.lanzdev.vk.group;
 
+import com.lanzdev.Vars;
 import com.lanzdev.util.Util;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ public class VkGroupChecker {
 
     public boolean contains(String domain) {
 
-        String urlString = "https://api.vk.com/method/groups.getById?group_ids=" + domain;
+        String urlString = Vars.VK_GROUP_CHECKER + domain;
 
         try {
             String response = Util.getResponse(urlString);
