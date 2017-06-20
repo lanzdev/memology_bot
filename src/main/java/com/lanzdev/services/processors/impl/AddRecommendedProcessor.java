@@ -69,9 +69,12 @@ public class AddRecommendedProcessor extends AbstractProcessor {
                         wall.setWallDomain(domain);
                         wall.setApproved(true);
                         wallManager.add(wall);
-                        recommendedWalls.add(wall);
+                        wall = wallManager.getByDomain(wall.getWallDomain());
+                    } else {
+                        wall.setApproved(true);
+                        wallManager.update(wall);
                     }
-
+                    recommendedWalls.add(wall);
                 });
     }
 

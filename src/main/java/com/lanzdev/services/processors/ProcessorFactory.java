@@ -7,7 +7,8 @@ import org.telegram.telegrambots.bots.AbsSender;
 
 public class ProcessorFactory {
 
-    public static Processor getProcessor(Message message, AbsSender absSender, String lastCommand) {
+    public static Processor getProcessor(
+            Message message, AbsSender absSender, String lastCommand) {
 
         switch (lastCommand) {
             case Commands.ADD_RECOMMENDED:

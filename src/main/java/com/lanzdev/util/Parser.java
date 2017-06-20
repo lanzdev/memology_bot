@@ -20,7 +20,7 @@ public class Parser {
     public static String parseHashtag(String message) {
 
         StringBuilder builder = new StringBuilder();
-        String[] words = message.split("[(\\s|\\\\|\\/|:|;|?)]+");
+        String[] words = message.split("[(\\s\\\\\\/!@#$%^&*\"№;:?'\\|<>~`)]+");
         Arrays.stream(words)
                 .forEach(word -> builder.append(word).append("_"));
         builder.deleteCharAt(builder.length() - 1);

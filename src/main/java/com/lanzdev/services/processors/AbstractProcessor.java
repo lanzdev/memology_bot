@@ -1,6 +1,6 @@
 package com.lanzdev.services.processors;
 
-import com.lanzdev.MemologyBot;
+import com.lanzdev.SpreadBot;
 import com.lanzdev.commands.Commands;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -17,7 +17,7 @@ public abstract class AbstractProcessor implements Processor {
 
     @Override
     public void process( ) {
-        MemologyBot.COMMANDS.get(Commands.HELP).getCommand()
+        SpreadBot.COMMANDS.get(Commands.HELP).getCommand()
                 .execute(bot, message.getFrom(), message.getChat(), message.getText().split(" "));
     }
 }

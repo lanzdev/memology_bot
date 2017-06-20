@@ -25,9 +25,9 @@ public class VkGroupGetter {
     public List<GroupItem> getItems(List<Wall> walls) {
 
         wallList = walls;
-        StringBuilder url = new StringBuilder("https://api.vk.com/method/groups.getById?group_ids=");
-        walls.stream()
-                .forEach((wall) -> url.append(wall.getWallDomain()).append(","));
+        StringBuilder url = new StringBuilder(
+                "https://api.vk.com/method/groups.getById?group_ids=");
+        walls.forEach((wall) -> url.append(wall.getWallDomain()).append(","));
         url.deleteCharAt(url.length() - 1);
         return getItemsFromUrl(url.toString());
     }

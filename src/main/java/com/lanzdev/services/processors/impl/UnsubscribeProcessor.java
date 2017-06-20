@@ -1,6 +1,6 @@
 package com.lanzdev.services.processors.impl;
 
-import com.lanzdev.MemologyBot;
+import com.lanzdev.SpreadBot;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
@@ -44,7 +44,7 @@ public class UnsubscribeProcessor extends AbstractProcessor {
             params = new String[]{id};
             LOGGER.debug("Processing unsubscribe sub command for id: {}", id);
         } else {
-            params = message.getText().split(",");
+            params = message.getText().split("[\\s,.:;]+");
             LOGGER.debug("Processing unsubscribe command, params: {}", Arrays.toString(params));
         }
 
@@ -61,7 +61,7 @@ public class UnsubscribeProcessor extends AbstractProcessor {
         LOGGER.debug("{} {} #{} unsubscribed: {}", currentChat.getFirstName(), currentChat.getLastName(),
                 currentChat.getId(), unsubscribedDomains.toString());
 
-        MemologyBot.COMMANDS.get(Commands.UNSUBSCRIBE).getCommand()
+        SpreadBot.COMMANDS.get(Commands.UNSUBSCRIBE).getCommand()
                 .execute(bot, message.getFrom(), message.getChat(), null);
     }
 

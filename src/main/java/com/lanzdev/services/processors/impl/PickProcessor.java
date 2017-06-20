@@ -1,6 +1,6 @@
 package com.lanzdev.services.processors.impl;
 
-import com.lanzdev.MemologyBot;
+import com.lanzdev.SpreadBot;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
 import com.lanzdev.managers.entity.SubscriptionManager;
@@ -61,7 +61,7 @@ public class PickProcessor extends AbstractProcessor {
         LOGGER.debug("{} {} #{} picked: {}", currentChat.getFirstName(), currentChat.getLastName(),
                 currentChat.getId(), pickedDomains.toString());
 
-        MemologyBot.COMMANDS.get(Commands.PICK).getCommand()
+        SpreadBot.COMMANDS.get(Commands.PICK).getCommand()
                 .execute(bot, message.getFrom(), message.getChat(), null);
 
     }

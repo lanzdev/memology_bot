@@ -20,12 +20,12 @@ import org.telegram.telegrambots.bots.TelegramLongPollingCommandBot;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MemologyBot extends TelegramLongPollingCommandBot {
+public class SpreadBot extends TelegramLongPollingCommandBot {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MemologyBot.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpreadBot.class);
     public static final Map<String, CommandContainer> COMMANDS = new HashMap<>();
 
-    public MemologyBot( ) {
+    public SpreadBot( ) {
 
         LOGGER.debug("Enter MemologyBot().");
         COMMANDS.put(Commands.ADD_RECOMMENDED, new CommandContainer(new AddRecommendedCommand(), true));

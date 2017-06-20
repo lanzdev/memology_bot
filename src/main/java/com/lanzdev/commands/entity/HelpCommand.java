@@ -1,6 +1,6 @@
 package com.lanzdev.commands.entity;
 
-import com.lanzdev.MemologyBot;
+import com.lanzdev.SpreadBot;
 import com.lanzdev.commands.AbstractCommand;
 import com.lanzdev.commands.Commands;
 import com.lanzdev.managers.entity.ChatManager;
@@ -43,7 +43,7 @@ public class HelpCommand extends AbstractCommand {
         ChatManager chatManager = new MySqlChatManager();
         com.lanzdev.domain.Chat currentChat = chatManager.getById(chatId);
 
-        MemologyBot.COMMANDS.entrySet().stream()
+        SpreadBot.COMMANDS.entrySet().stream()
                 .forEach((item) -> {
                     if (!item.getValue().isForAdmin() || currentChat.isAdmin()) {
                         builder.append("/")

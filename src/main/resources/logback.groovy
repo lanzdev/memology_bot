@@ -6,7 +6,9 @@ def fileName = "log-${date}.log"
 
 
 appender("FILE", FileAppender) {
-    file = "${USER_DIR}\\logs\\${fileName}"
+    def filePath = "${USER_DIR}${File.separator}logs${File.separator}${fileName}"
+    file = filePath
+    println "File with logs: ${filePath}"
     append = true
     encoder(PatternLayoutEncoder) {
         pattern = "%date{HH:mm:ss.SSS} %-5level [%thread] %logger : %msg%n"

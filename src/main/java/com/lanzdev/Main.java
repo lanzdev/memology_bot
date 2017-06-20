@@ -39,7 +39,7 @@ public class Main {
         LOGGER.debug("Enter main().");
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-        MemologyBot bot = new MemologyBot();
+        SpreadBot bot = new SpreadBot();
         try {
             telegramBotsApi.registerBot(bot);
             LOGGER.info("Bot registered successfully!");
