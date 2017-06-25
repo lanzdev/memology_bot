@@ -8,8 +8,8 @@ import com.lanzdev.managers.mysql.impl.MySqlWallManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Parser;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -43,10 +43,10 @@ public class ListCommand extends AbstractCommand {
         WallManager wallManager = new MySqlWallManager();
         List<Wall> walls = wallManager.getAllApproved();
 
-        VkGroupGetter groupGetter = new VkGroupGetter();
-        List<GroupItem> groupItems = groupGetter.getItems(walls);
+        VkPublicGetter groupGetter = new VkPublicGetter();
+        List<PublicItem> publicItems = groupGetter.getItems(walls);
 
-        groupItems.stream()
+        publicItems.stream()
                 .forEach(group -> builder
                         .append(String.format("%-5d", group.getId()))
                         .append("-  ").append(group.getName()).append("\n"));

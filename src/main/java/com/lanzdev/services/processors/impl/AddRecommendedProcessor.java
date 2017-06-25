@@ -11,9 +11,9 @@ import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Parser;
 import com.lanzdev.util.Regex;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupChecker;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicChecker;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.api.objects.Message;
@@ -54,7 +54,7 @@ public class AddRecommendedProcessor extends AbstractProcessor {
     private void createRecommended(String[] params, List<Wall> recommendedWalls) {
 
         WallManager wallManager = new MySqlWallManager();
-        VkGroupChecker vkGroupChecker = new VkGroupChecker();
+        VkPublicChecker vkGroupChecker = new VkPublicChecker();
         Arrays.stream(params)
                 .forEach(item -> {
                     String regex = "com\\/(.*)";
@@ -80,13 +80,13 @@ public class AddRecommendedProcessor extends AbstractProcessor {
 
     private void sendRecommendedWalls(Chat currentChat, List<Wall> recommendedWalls) {
 
-        VkGroupGetter groupGetter = new VkGroupGetter();
-        List<GroupItem> groupItems = groupGetter.getItems(recommendedWalls);
+        VkPublicGetter groupGetter = new VkPublicGetter();
+        List<PublicItem> publicItems = groupGetter.getItems(recommendedWalls);
         StringBuilder builder = new StringBuilder();
 
-        if (groupItems.size() != 0) {
+        if (publicItems.size() != 0) {
             builder.append("Added to recommended:\n");
-            groupItems.stream()
+            publicItems.stream()
                     .forEach(item -> builder
                             .append(String.format("%-5d", item.getId()))
                             .append("-  ").append(item.getName()).append("\n"));

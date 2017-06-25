@@ -5,7 +5,8 @@ import java.util.regex.Pattern;
 
 public class Regex {
 
-    public static String getDomain(String regex, String text, int group) {
+    public static String getDomain
+            (String regex, String text, int group) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(text);
 
