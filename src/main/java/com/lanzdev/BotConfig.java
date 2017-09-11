@@ -2,11 +2,8 @@ package com.lanzdev;
 
 public class BotConfig {
 
-//    public static final String MEMOLOG_TOKEN = "274552806:AAEdqbJvmuA0NPlFanC61HCfnNhbVkcL1xk";
-    public static final String MEMOLOG_TOKEN = "342599070:AAEyyV4X-EW9nT4VvrsSaYH9tz6JTXaT0V4";
-//    public static final String MEMOLOG_TOKEN = "390782087:AAEaYwyNJU_8yuVKfNm1fA6js-m1QfJBYsM";
-    public static final String MEMOLOG_NAME = "memology_bot_test";
-//    public static final String MEMOLOG_NAME = "spread vk";
+    public static final String MEMOLOG_TOKEN = "390782087:AAEaYwyNJU_8yuVKfNm1fA6js-m1QfJBYsM";
+    public static final String MEMOLOG_NAME = "spread vk";
 }
 
 
