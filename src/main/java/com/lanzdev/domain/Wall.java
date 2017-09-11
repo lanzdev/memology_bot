@@ -41,4 +41,14 @@ public class Wall implements Identified<Integer> {
     public void setPopularity(Integer popularity) {
         this.popularity = popularity;
     }
+
+    @Override
+    public String toString( ) {
+        return "Wall{" +
+                "id=" + id +
+                ", wallDomain='" + wallDomain + '\'' +
+                ", approved=" + approved +
+                ", popularity=" + popularity +
+                '}';
+    }
 }

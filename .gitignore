@@ -1,0 +1,11 @@
+# ignore compiled classes
+*.class
+# ignore idea folders
+**/.idea
+**/out
+**/*.iml
+**/target
+**/logs
+**/.settings/
+**/.project
+**/.classpath

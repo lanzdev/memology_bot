@@ -35,7 +35,7 @@ public class VkGroupGetter {
     private List<GroupItem> getItemsFromUrl(String url) {
 
         List<GroupItem> groupItems = new ArrayList<>();
-        String response = null;
+        String response;
         try {
             response = Util.getResponse(url);
             if (response != null) {

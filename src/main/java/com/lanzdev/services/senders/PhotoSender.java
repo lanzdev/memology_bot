@@ -23,7 +23,7 @@ public class PhotoSender implements Sender {
             absSender.sendPhoto(sendPhoto);
             LOGGER.debug("Successfully sent photo to chat {}, src: {}.", chatId, data);
         } catch (TelegramApiException e) {
-            LOGGER.error("Cannot send photo to chat {}, src: {}.", chatId, data, e);
+            LOGGER.error("Cannot send photo to chat {}, src: {}.", chatId, data);
         }
     }
 }

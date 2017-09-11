@@ -38,7 +38,7 @@ public class MessageSender implements Sender {
                         chatId, sendMessage.getText().length());
             } catch (TelegramApiException e) {
                 LOGGER.error("Cannot send message to chat {}, message: {}.",
-                        chatId, sendMessage.getText(), e);
+                        chatId, sendMessage.getText());
             }
         }
 

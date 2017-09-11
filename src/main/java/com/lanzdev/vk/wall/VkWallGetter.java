@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,14 +31,14 @@ public class VkWallGetter {
     private List<WallItem> getItemsByUrl(String url) {
 
         List<WallItem> wallItems = new ArrayList<>();
-        String response = null;
+        String response;
         try {
             response = Util.getResponse(url);
-        } catch (IOException e) {
+            if (response != null) {
+                wallItems = parseJson(response);
+            }
+        } catch (Exception e) {
             LOGGER.error("Exception while getting response from url: {}.", url, e);
-        }
-        if (response != null) {
-            wallItems = parseJson(response);
         }
         return wallItems;
     }
@@ -54,7 +53,7 @@ public class VkWallGetter {
 
         for (Object currentObj : array) {
 
-            JSONObject currentItem = (JSONObject)currentObj;
+            JSONObject currentItem = (JSONObject) currentObj;
             if (currentItem.has("is_pinned")
                     && currentItem.getInt("is_pinned") == 1) {
                 continue;
@@ -87,6 +86,7 @@ public class VkWallGetter {
 
     /**
      * Init given {@link WallItem wallItem} with values gotten from {@link JSONObject object}
+     *
      * @param wallItem
      * @param object
      */
@@ -100,6 +100,7 @@ public class VkWallGetter {
 
     /**
      * Init given {@link Photo photo} with values gotten from {@link JSONObject object}
+     *
      * @param photo
      * @param object
      */

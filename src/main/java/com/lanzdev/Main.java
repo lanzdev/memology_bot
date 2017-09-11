@@ -47,8 +47,12 @@ public class Main {
             LOGGER.error("Cannot register bot.", e);
         }
 
-        Main main = new Main();
-        main.distribution(bot);
+        try {
+            Main main = new Main();
+            main.distribution(bot);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     /**
@@ -63,28 +67,31 @@ public class Main {
         WallManager wallManager = new MySqlWallManager();
 
         LOGGER.info("Start to distribute posts.");
-        new Runnable() {
-            @Override
-            public void run( ) {
 
-                while (true) {
-                    List<Subscription> subscriptions = subscriptionManager.getAll();
-                    subscriptions.stream()
-                            .forEach(item -> {
-                                Wall wall = wallManager.getByDomain(item.getWallDomain());
-                                if (subscriptionManager.getById(item.getId()) != null) {
-                                    sendMessages(wall, item, absSender);
-                                    subscriptionManager.update(item);
-                                }
-                            });
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        LOGGER.error("Thread was interrupted.", e);
-                    }
-                }
+        while (true) {
+            try {
+                List<Subscription> subscriptions = subscriptionManager.getAll();
+                subscriptions.stream()
+                        .forEach(item -> {
+                            Wall wall = wallManager.getByDomain(item.getWallDomain());
+                            if (subscriptionManager.getById(item.getId()) != null) {
+                                sendMessages(wall, item, absSender);
+                                subscriptionManager.update(item);
+                            }
+                        });
+                sleep();
+            } catch (Exception e) {
+                LOGGER.error("Some issue occurred during distributing", e);
             }
-        }.run();
+        }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            LOGGER.error("Thread was interrupted.", e);
+        }
     }
 
     private void sendMessages(Wall wall, Subscription subscription, AbsSender absSender) {
@@ -133,8 +140,12 @@ public class Main {
      * @param absSender
      */
     private void sendMessageHeader(Wall wall, Subscription subscription, AbsSender absSender) {
-
-        GroupItem groupItem = new VkGroupGetter().getItems(Collections.singletonList(wall)).iterator().next();
+        List<GroupItem> groupItems = new VkGroupGetter().getItems(Collections.singletonList(wall));
+        if (groupItems.isEmpty()) {
+            LOGGER.debug("sendMessageHeader -> groupItems list is empty for wall: {}", wall);
+            return;
+        }
+        GroupItem groupItem = groupItems.iterator().next();
         StringBuilder builder = new StringBuilder();
         String groupName = groupItem.getName();
         groupName = Parser.parseHashtag(groupName);
