@@ -14,9 +14,9 @@ import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Parser;
 import com.lanzdev.util.Regex;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupChecker;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicChecker;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.api.objects.Message;
@@ -38,17 +38,14 @@ public class SubscribeProcessor extends AbstractProcessor {
 
     @Override
     public void process( ) {
-
         LOGGER.debug("Processing subscribe command.");
         ChatManager chatManager = new MySqlChatManager();
         Chat currentChat = chatManager.getById(message.getChatId());
         String[] params = message.getText().split("\\s+");
         Arrays.stream(params).forEach(item -> item = item.toLowerCase());
         List<Wall> subscribedWalls = new LinkedList<>();
-
         createSubscriptions(currentChat, params, subscribedWalls);
         sendSubscribedWalls(currentChat, subscribedWalls);
-
         List<String> subscribedDomains = subscribedWalls.stream()
                 .map(Wall::getWallDomain)
                 .collect(Collectors.toList());
@@ -56,27 +53,16 @@ public class SubscribeProcessor extends AbstractProcessor {
     }
 
     private void createSubscriptions(Chat currentChat, String[] params, List<Wall> subscribedWalls) {
-
         WallManager wallManager = new MySqlWallManager();
         SubscriptionManager subscriptionManager = new MySqlSubscriptionManager();
-        VkGroupChecker vkGroupChecker = new VkGroupChecker();
         Arrays.stream(params)
                 .forEach(item -> {
                     String regex = "com\\/(.*)";
                     String domain = Regex.getDomain(regex, item, 1);
-
-                    if (!vkGroupChecker.contains(domain)) {
+                    if (!VkPublicChecker.contains(domain)) {
                         return;
                     }
-
-                    Wall wall = wallManager.getByDomain(domain);
-                    if (wall == null) {
-                        wall = new Wall();
-                        wall.setWallDomain(domain);
-                        wall.setApproved(false);
-                        wallManager.add(wall);
-                    }
-
+                    Wall wall = getWall(wallManager, domain);
                     Subscription subscription = subscriptionManager.getByChatAndWall(
                             currentChat.getId(), wall.getWallDomain());
                     if (subscription == null) {
@@ -88,11 +74,10 @@ public class SubscribeProcessor extends AbstractProcessor {
                         subscribedWalls.add(wall);
                     } else {
                         if (subscription.isActive()) {
-                            VkGroupGetter groupGetter = new VkGroupGetter();
-                            GroupItem groupItem = groupGetter.getItems(Collections.singletonList(wall))
+                            PublicItem publicItem = VkPublicGetter.getItems(Collections.singletonList(wall))
                                     .iterator().next();
                             String alreadySubscribedString =
-                                    String.format("You have already subscribed public: %s", groupItem.getName());
+                                    String.format("You have already subscribed public: %s", publicItem.getName());
                             Sender sender = new MessageSender();
                             sender.send(bot, currentChat.getId().toString(), alreadySubscribedString);
                         } else {
@@ -105,14 +90,25 @@ public class SubscribeProcessor extends AbstractProcessor {
                 });
     }
 
+    private Wall getWall(WallManager wallManager, String domain) {
+        Wall wall = wallManager.getByDomain(domain);
+        if (wall == null) {
+            wall = new Wall();
+            wall.setWallDomain(domain);
+            wall.setApproved(false);
+            wallManager.add(wall);
+        }
+        return wall;
+    }
+
     private void sendSubscribedWalls(Chat currentChat, List<Wall> subscribedWalls) {
-        VkGroupGetter groupGetter = new VkGroupGetter();
-        List<GroupItem> groupItems = groupGetter.getItems(subscribedWalls);
+        VkPublicGetter groupGetter = new VkPublicGetter();
+        List<PublicItem> publicItems = groupGetter.getItems(subscribedWalls);
         StringBuilder builder = new StringBuilder();
 
-        if (groupItems.size() != 0) {
+        if (publicItems.size() != 0) {
             builder.append("Subscribed:\n");
-            groupItems.stream()
+            publicItems.stream()
                     .forEach(item -> builder
                             .append(String.format("%-5d", item.getId()))
                             .append("-  ").append(item.getName()).append("\n"));

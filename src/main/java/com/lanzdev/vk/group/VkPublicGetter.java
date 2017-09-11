@@ -15,61 +15,52 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * {@link VkGroupGetter VkGroupGetter} gets group items from vk using vk api, {@link #parseJson(String) parses json response},
+ * {@link VkPublicGetter VkGroupGetter} gets public items from vk using vk api, {@link #parseJson(String, List) parses json response},
  * puts it into list and {@link #getItems(List)}  returns list of wall items} .
  */
-public class VkGroupGetter {
+public class VkPublicGetter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VkGroupGetter.class);
-    private List<Wall> wallList = new LinkedList<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(VkPublicGetter.class);
+    private static List<Wall> wallList = new LinkedList<>();
 
-    public List<GroupItem> getItems(List<Wall> walls) {
-
+    public static List<PublicItem> getItems(List<Wall> walls) {
         wallList = walls;
         StringBuilder url = new StringBuilder(Vars.VK_GROUP_GET);
         walls.forEach((wall) -> url.append(wall.getWallDomain()).append(","));
         url.deleteCharAt(url.length() - 1);
+        LOGGER.debug("Getting items using next url: {}", url.toString());
         return getItemsFromUrl(url.toString());
     }
 
-    private List<GroupItem> getItemsFromUrl(String url) {
+    private static List<PublicItem> getItemsFromUrl(String url) {
 
-        List<GroupItem> groupItems = new ArrayList<>();
+        List<PublicItem> publicItems = new ArrayList<>();
         String response;
         try {
             response = Util.getResponse(url);
             if (response != null) {
-                groupItems = parseJson(response);
+                parseJson(response, publicItems);
             }
         } catch (IOException e) {
             LOGGER.error("Exception while getting response from url: {}.", url, e);
         }
-        return groupItems;
+        return publicItems;
     }
 
-    private List<GroupItem> parseJson(String response) {
-
-        List<GroupItem> groupItems = new ArrayList<>();
-
+    private static void parseJson(String response, List<PublicItem> publicItems) {
         JSONObject obj = new JSONObject(response);
         if (obj.has("response")) {
             JSONArray array = obj.getJSONArray("response");
-
             Iterator<Wall> wallIterator = wallList.iterator();
             for (Object currentObj : array) {
-
                 JSONObject currentItem = (JSONObject) currentObj;
-
-                GroupItem groupItem = new GroupItem();
+                PublicItem groupItem = new PublicItem();
                 groupItem.setId(wallIterator.next().getId());
                 groupItem.setGid(currentItem.getInt("gid"));
                 groupItem.setName(currentItem.getString("name"));
                 groupItem.setScreenName(currentItem.getString("screen_name"));
-
-                groupItems.add(groupItem);
+                publicItems.add(groupItem);
             }
         }
-
-        return groupItems;
     }
 }

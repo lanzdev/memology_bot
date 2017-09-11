@@ -16,7 +16,6 @@ public class MessageSender implements Sender {
 
     @Override
     public void send(AbsSender absSender, String chatId, String data) {
-
         while (data != null) {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatId);
@@ -31,7 +30,6 @@ public class MessageSender implements Sender {
             message = message.replace("<br>", "\n");
             sendMessage.setText(message);
             sendMessage.setParseMode("Markdown");
-
             try {
                 absSender.sendMessage(sendMessage);
                 LOGGER.debug("Successfully sent message to chat {}, message length = {}.",
@@ -41,6 +39,5 @@ public class MessageSender implements Sender {
                         chatId, sendMessage.getText());
             }
         }
-
     }
 }

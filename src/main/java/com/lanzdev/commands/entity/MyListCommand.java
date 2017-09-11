@@ -6,7 +6,7 @@ import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Parser;
 import com.lanzdev.util.Util;
-import com.lanzdev.vk.group.GroupItem;
+import com.lanzdev.vk.group.PublicItem;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -37,9 +37,9 @@ public class MyListCommand extends AbstractCommand {
 
     private void appendSubscribedWalls(StringBuilder builder, Long chatId) {
 
-        List<GroupItem> groupItems = Util.getSubscribedWalls(chatId);
-        if (groupItems.size() != 0) {
-            groupItems.forEach(group -> builder
+        List<PublicItem> publicItems = Util.getSubscribedWalls(chatId);
+        if (publicItems.size() != 0) {
+            publicItems.forEach(group -> builder
                     .append(String.format("%-5d", group.getId()))
                     .append("-  ").append(group.getName()).append("\n"));
         } else {

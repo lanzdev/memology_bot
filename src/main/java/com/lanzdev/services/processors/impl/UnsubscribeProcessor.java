@@ -15,8 +15,8 @@ import com.lanzdev.services.processors.AbstractProcessor;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Parser;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.api.objects.Message;
@@ -37,8 +37,23 @@ public class UnsubscribeProcessor extends AbstractProcessor {
 
     @Override
     public void process( ) {
+        String[] params = initParam();
+        ChatManager chatManager = new MySqlChatManager();
+        Chat currentChat = chatManager.getById(message.getChatId());
+        List<Wall> unsubscribedWalls = new LinkedList<>();
+        deactivateSubscriptions(currentChat, params, unsubscribedWalls);
+        sendUnsubscribedWalls(currentChat, unsubscribedWalls);
+        List<String> unsubscribedDomains = unsubscribedWalls.stream()
+                .map(Wall::getWallDomain)
+                .collect(Collectors.toList());
+        LOGGER.debug("{} {} #{} unsubscribed: {}", currentChat.getFirstName(), currentChat.getLastName(),
+                currentChat.getId(), unsubscribedDomains.toString());
+        SpreadBot.COMMANDS.get(Commands.UNSUBSCRIBE).getCommand()
+                .execute(bot, message.getFrom(), message.getChat(), null);
+    }
 
-        String[] params = null;
+    private String[] initParam( ) {
+        String[] params;
         if (message.getText().startsWith("/unsubscribe")) {
             String id = message.getText().split("_")[1];
             params = new String[]{id};
@@ -47,36 +62,19 @@ public class UnsubscribeProcessor extends AbstractProcessor {
             params = message.getText().split("[\\s,.:;]+");
             LOGGER.debug("Processing unsubscribe command, params: {}", Arrays.toString(params));
         }
-
-        ChatManager chatManager = new MySqlChatManager();
-        Chat currentChat = chatManager.getById(message.getChatId());
-        List<Wall> unsubscribedWalls = new LinkedList<>();
-
-        deactivateSubscriptions(currentChat, params, unsubscribedWalls);
-        sendUnsubscribedWalls(currentChat, unsubscribedWalls);
-
-        List<String> unsubscribedDomains = unsubscribedWalls.stream()
-                .map(Wall::getWallDomain)
-                .collect(Collectors.toList());
-        LOGGER.debug("{} {} #{} unsubscribed: {}", currentChat.getFirstName(), currentChat.getLastName(),
-                currentChat.getId(), unsubscribedDomains.toString());
-
-        SpreadBot.COMMANDS.get(Commands.UNSUBSCRIBE).getCommand()
-                .execute(bot, message.getFrom(), message.getChat(), null);
+        return params;
     }
 
     private void deactivateSubscriptions(Chat currentChat, String[] params, List<Wall> unsubscribedWalls) {
-
         WallManager wallManager = new MySqlWallManager();
         SubscriptionManager subscriptionManager = new MySqlSubscriptionManager();
         List<Subscription> subscriptions = subscriptionManager.getByChatId(currentChat.getId());
         Arrays.stream(params)
                 .forEach(item -> {
                     Integer wallId = null;
-                    Wall wall = null;
                     try {
                         wallId = Integer.parseInt(item.trim());
-                        wall = wallManager.getById(wallId);
+                        Wall wall = wallManager.getById(wallId);
                         Subscription subscription = getByWallDomain(subscriptions, wall.getWallDomain());
                         if (subscription != null) {
                             subscription.setActive(false);
@@ -94,7 +92,6 @@ public class UnsubscribeProcessor extends AbstractProcessor {
     }
 
     private Subscription getByWallDomain(List<Subscription> subscriptions, String wallDomain) {
-
         for (Subscription subscription : subscriptions) {
             if (subscription.getWallDomain().equals(wallDomain)) {
                 return subscription;
@@ -104,23 +101,24 @@ public class UnsubscribeProcessor extends AbstractProcessor {
     }
 
     private void sendUnsubscribedWalls(Chat currentChat, List<Wall> unsubscribedWalls) {
+        List<PublicItem> publicItems = VkPublicGetter.getItems(unsubscribedWalls);
+        StringBuilder unsubscribedWallsBuilder = getUnsubscribedWallsBuilder(publicItems);
+        String message = Parser.parseMarkdown(unsubscribedWallsBuilder.toString());
+        Sender sender = new MessageSender();
+        sender.send(bot, currentChat.getId().toString(), message);
+    }
 
-        VkGroupGetter groupGetter = new VkGroupGetter();
-        List<GroupItem> groupItems = groupGetter.getItems(unsubscribedWalls);
+    private StringBuilder getUnsubscribedWallsBuilder(List<PublicItem> publicItems) {
         StringBuilder unsubscribedWallsBuilder = new StringBuilder();
-
-        if (groupItems.size() != 0) {
+        if (publicItems.size() != 0) {
             unsubscribedWallsBuilder.append("Unsubscribed:\n");
-            groupItems.stream()
-                    .forEach(item -> unsubscribedWallsBuilder
-                            .append(String.format("%-5d", item.getId()))
-                            .append("-  ").append(item.getName()).append("\n"));
+            publicItems.forEach(item -> unsubscribedWallsBuilder
+                    .append(String.format("%-5d", item.getId()))
+                    .append("-  ").append(item.getName()).append("\n"));
             unsubscribedWallsBuilder.deleteCharAt(unsubscribedWallsBuilder.length() - 1);
         } else {
             unsubscribedWallsBuilder.append("Didn't unsubscribe from anything");
         }
-        String message = Parser.parseMarkdown(unsubscribedWallsBuilder.toString());
-        Sender sender = new MessageSender();
-        sender.send(bot, currentChat.getId().toString(), message);
+        return unsubscribedWallsBuilder;
     }
 }

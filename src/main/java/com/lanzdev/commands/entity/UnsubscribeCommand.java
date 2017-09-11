@@ -5,7 +5,7 @@ import com.lanzdev.commands.Commands;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Util;
-import com.lanzdev.vk.group.GroupItem;
+import com.lanzdev.vk.group.PublicItem;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -39,16 +39,16 @@ public class UnsubscribeCommand extends AbstractCommand {
 
     private void appendSubscribedWalls(StringBuilder builder, Long chatId) {
 
-        List<GroupItem> groupItems = Util.getSubscribedWalls(chatId);
+        List<PublicItem> publicItems = Util.getSubscribedWalls(chatId);
 
-        groupItems.forEach(group -> {
+        publicItems.forEach(group -> {
             String command = String.format("/unsubscribe_%-3d", group.getId());
             builder.append(
                     String.format("[%s -  %s](%s)", command, group.getName(), command))
                     .append("\n");
         });
 
-        if (groupItems.size() != 0) {
+        if (publicItems.size() != 0) {
             builder.insert(0, "\n")
                     .insert(0, "Or you may print ids of desirable walls separated by commas.")
                     .insert(0, "\n");

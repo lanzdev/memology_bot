@@ -1,13 +1,13 @@
 package com.lanzdev.vk.group;
 
-public class GroupItem {
+public class PublicItem {
 
     private Integer id;
     private Integer gid;
     private String name;
     private String screenName;
 
-    public GroupItem( ) {
+    public PublicItem( ) {
     }
 
     public Integer getId( ) {

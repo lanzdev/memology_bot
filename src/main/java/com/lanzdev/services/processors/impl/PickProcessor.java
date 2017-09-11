@@ -15,8 +15,8 @@ import com.lanzdev.services.processors.AbstractProcessor;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Parser;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.api.objects.Message;
@@ -99,13 +99,13 @@ public class PickProcessor extends AbstractProcessor {
 
     private void sendPickedWalls(Chat currentChat, List<Wall> pickedWalls) {
 
-        VkGroupGetter groupGetter = new VkGroupGetter();
-        List<GroupItem> groupItems = groupGetter.getItems(pickedWalls);
+        VkPublicGetter groupGetter = new VkPublicGetter();
+        List<PublicItem> publicItems = groupGetter.getItems(pickedWalls);
         StringBuilder pickedWallsBuilder = new StringBuilder();
 
-        if (groupItems.size() != 0) {
+        if (publicItems.size() != 0) {
             pickedWallsBuilder.append("Added:\n");
-            groupItems.stream()
+            publicItems.stream()
                     .forEach(item -> pickedWallsBuilder
                             .append(String.format("%-5d", item.getId()))
                             .append("-  ").append(item.getName()).append("\n"));

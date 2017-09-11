@@ -9,8 +9,8 @@ import com.lanzdev.managers.mysql.impl.MySqlSubscriptionManager;
 import com.lanzdev.managers.mysql.impl.MySqlWallManager;
 import com.lanzdev.domain.Subscription;
 import com.lanzdev.domain.Wall;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,6 @@ public class Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
 
     public static String getResponse(String _url) throws IOException {
-
         URL url = new URL(_url);
         String response;
         try (Scanner scanner = new Scanner(url.openStream())) {
@@ -35,12 +34,10 @@ public class Util {
             }
             response = sb.toString();
         }
-
         return response;
     }
 
-    public static List<GroupItem> getSubscribedWalls(Long chatId) {
-
+    public static List<PublicItem> getSubscribedWalls(Long chatId) {
         SubscriptionManager subscriptionManager = new MySqlSubscriptionManager();
         WallManager wallManager = new MySqlWallManager();
         List<Subscription> subscriptions = subscriptionManager.getByChatId(chatId);
@@ -52,13 +49,12 @@ public class Util {
                 }
         );
 
-        VkGroupGetter groupGetter = new VkGroupGetter();
+        VkPublicGetter groupGetter = new VkPublicGetter();
 
         return groupGetter.getItems(walls);
     }
 
     public static void appendPauseChecking(StringBuilder builder, Long chatId) {
-
         ChatManager chatManager = new MySqlChatManager();
         Chat currentChat = chatManager.getById(chatId);
 
@@ -66,4 +62,5 @@ public class Util {
             builder.append("You have suspended distribution, if you want to proceed it print /resume\n");
         }
     }
+
 }

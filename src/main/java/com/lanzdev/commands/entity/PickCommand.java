@@ -11,8 +11,8 @@ import com.lanzdev.managers.mysql.impl.MySqlWallManager;
 import com.lanzdev.services.senders.MessageSender;
 import com.lanzdev.services.senders.Sender;
 import com.lanzdev.util.Util;
-import com.lanzdev.vk.group.GroupItem;
-import com.lanzdev.vk.group.VkGroupGetter;
+import com.lanzdev.vk.group.PublicItem;
+import com.lanzdev.vk.group.VkPublicGetter;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -64,9 +64,9 @@ public class PickCommand extends AbstractCommand {
             }
         }
 
-        VkGroupGetter groupGetter = new VkGroupGetter();
-        List<GroupItem> groupItems = groupGetter.getItems(notSubscribedWalls);
-        groupItems.stream()
+        VkPublicGetter groupGetter = new VkPublicGetter();
+        List<PublicItem> publicItems = groupGetter.getItems(notSubscribedWalls);
+        publicItems.stream()
                 .forEach(group -> {
                     String command = String.format("/pick_%-3d", group.getId());
                     builder.append(
@@ -75,7 +75,7 @@ public class PickCommand extends AbstractCommand {
 
                 });
 
-        if (groupItems.size() != 0) {
+        if (publicItems.size() != 0) {
             builder.insert(0, "\n")
                     .insert(0, "Or you may print ids of walls you want to pick separated by commas.")
                     .insert(0, "\n");

@@ -9,22 +9,20 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * {@link VkGroupChecker VkGroupChecker} checks
+ * {@link VkPublicChecker} checks
  * either given domain contains in vk as groups domain or doesn't it.
  */
-public class VkGroupChecker {
+public class VkPublicChecker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VkGroupChecker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VkPublicChecker.class);
 
-    public boolean contains(String domain) {
-
+    public static boolean contains(String domain) {
         String urlString = Vars.VK_GROUP_CHECKER + domain;
-
         try {
             String response = Util.getResponse(urlString);
             return checkJsonResponse(response);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while checking if such domain '{}' contains", domain, e);
         }
         return false;
     }
@@ -34,14 +32,14 @@ public class VkGroupChecker {
      * @param response
      * @return
      */
-    private boolean checkJsonResponse(String response) {
-
+    private static boolean checkJsonResponse(String response) {
         JSONObject obj = new JSONObject(response);
         if (obj.has("error")) {
             return false;
         } else if (obj.has("response")) {
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 }
